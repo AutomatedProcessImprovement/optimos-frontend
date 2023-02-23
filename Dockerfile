@@ -7,6 +7,7 @@ RUN npm ci
 
 COPY tsconfig.json tsconfig.json
 COPY tsconfig.node.json tsconfig.node.json
+COPY vite.config.ts vite.config.ts
 COPY ./public/ ./public
 COPY ./src/ ./src
 COPY ./nginx/ ./nginx
