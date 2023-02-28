@@ -128,7 +128,7 @@ const Upload = () => {
         console.log("WIP: ErrorMessage")
     };
 
-    const handleRequest = () => {
+    const handleRequest = async () => {
         setLoading(false)
         if (areFilesPresent()) {
             // Set info message
@@ -143,6 +143,11 @@ const Upload = () => {
                     }
 
                 }))
+                .catch((error: any) => {
+                    console.log(error.response)
+                    setErrorMessage(error.response.data.displayMessage)
+                })
+
         }
     }
 

@@ -14,15 +14,7 @@ export const optimize = async (
     formData.append("constraintsFile", constraintsFile as Blob)
     formData.append("modelFile", modelFile as Blob)
 
-    console.log(algorithm)
-    console.log(approach)
-    console.log(logName)
-    console.log(total_iterations)
-    console.log(simScenarioFile)
-    console.log(constraintsFile)
-    console.log(modelFile)
-
-    // return
+    console.log(formData)
 
     return await axios.post(
         '/api/optimize',
