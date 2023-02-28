@@ -12,9 +12,12 @@ import {
     Typography
 } from "@mui/material";
 import {LoadingButton} from '@mui/lab';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import FileUploader from "../FileUploader";
-import { optimize} from "../../api/api";
+import {getFileByFileName, getTaskByTaskId, optimize} from "../../api/api";
+import { useInterval } from 'usehooks-ts'
+import paths from '../../router/paths';
+import {useNavigate} from "react-router";
 
 
 const Upload = () => {
@@ -29,12 +32,84 @@ const Upload = () => {
 
     const [iterations, setIterations] = useState<number>(0)
 
+    const [isPollingEnabled, setIsPollingEnabled] = useState(false)
+    const [pendingTaskId, setPendingTaskId] = useState("")
+
+    const [optimizationReportFileName, setOptimizationReportFileName] = useState("")
+
+
+
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (optimizationReportFileName === "") {
+            return
+        }
+        getFileByFileName(optimizationReportFileName)
+            .then((result: any) => {
+                const jsonString = JSON.stringify(result.data)
+                const blob = new Blob([jsonString], {type: "application/json"});
+
+                const optimizationReportFile = new File([blob], "name", { type: "application/json" })
+
+
+                navigate(paths.DASHBOARD_PATH, {
+                    state: {
+                        reportFile: optimizationReportFile,
+                        reportJson: jsonString
+                    }
+                })
+
+
+            })
+            .catch((error: any) => {
+                console.log(error?.response || error)
+                const errorMessage = error?.response?.data?.displayMessage || "Something went wrong"
+                setErrorMessage("Loading File: " + errorMessage)
+            })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [optimizationReportFileName])
+
+    useInterval(
+    () => {
+            getTaskByTaskId(pendingTaskId)
+                .then((result:any) => {
+                    const dataJson = result.data
+                    console.log(dataJson)
+                    if (dataJson.TaskStatus === "SUCCESS") {
+                        setIsPollingEnabled(false);
+
+                        const taskResponseJson = dataJson.TaskResponse
+                        if (taskResponseJson["success"] === false) {
+                            setIsPollingEnabled(false)
+                            setErrorMessage(`Discovery Task: ${taskResponseJson['errorMessage']}`)
+                        } else {
+                            setOptimizationReportFileName(taskResponseJson['stat_path'])
+                            setLoading(false)
+                        }
+                    }
+                    else if (dataJson.TaskStatus === "FAILURE") {
+                        setIsPollingEnabled(false)
+
+                        console.log(dataJson)
+                        setErrorMessage("Optimization Task failed")
+                    }
+                })
+                .catch((error: any) => {
+                    setIsPollingEnabled(false)
+
+                    console.log(error)
+                    const errorMessage = error?.response?.data?.displayMessage || "Something went wrong"
+                    setErrorMessage("Task Executing: " + errorMessage)
+                })
+    },
+        isPollingEnabled ? 3000 : null
+    )
+
 
     const areFilesPresent = () => {
-        const files_complete = simParams && consParams && bpmnModel
+        const files_complete = simParams != null && consParams != null && bpmnModel != null
         const params_complete = approach !== '' && algorithm !== '' && name !== '' && iterations != 0
-        console.log(files_complete)
-        console.log(params_complete)
         return files_complete && params_complete
     }
 
@@ -54,15 +129,19 @@ const Upload = () => {
     };
 
     const handleRequest = () => {
-        setLoading(true)
+        setLoading(false)
         if (areFilesPresent()) {
             // Set info message
-            optimize("", "", "", 0,
+            optimize(algorithm, approach, name, iterations,
                 simParams as Blob, consParams as Blob , bpmnModel as Blob)
                 .then(((result) => {
                     const dataJson = result.data
 
-                    console.log(dataJson)
+                    if (dataJson.TaskId) {
+                        setIsPollingEnabled(true)
+                        setPendingTaskId(dataJson.TaskId)
+                    }
+
                 }))
         }
     }
@@ -115,7 +194,7 @@ const Upload = () => {
                                         name={"scenarioName"}
                                         sx={{ m:1,minWidth: 250}} id="logname_textfield" label="e.g. John Doe" variant="standard" className="centeredContent"/>
                                 </Grid>
-                                <Grid container xs={12} sx={{paddingTop: '5%'}}>
+                                <Grid container sx={{paddingTop: '5%'}}>
                                     <Grid item xs={4}>
                                         <Typography>BPMN Model</Typography>
                                         <br/>
