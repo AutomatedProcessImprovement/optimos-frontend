@@ -25,7 +25,7 @@ export const optimize = async (
     // return
 
     return await axios.post(
-        'api/optimize',
+        '/api/optimize',
         formData
     )
 }
