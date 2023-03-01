@@ -75,14 +75,14 @@ const Upload = () => {
             getTaskByTaskId(pendingTaskId)
                 .then((result:any) => {
                     const dataJson = result.data
-                    console.log(dataJson)
+                    // console.log(dataJson)
                     if (dataJson.TaskStatus === "SUCCESS") {
                         setIsPollingEnabled(false);
 
                         const taskResponseJson = dataJson.TaskResponse
                         if (taskResponseJson["success"] === false) {
                             setIsPollingEnabled(false)
-                            setErrorMessage(`Discovery Task: ${taskResponseJson['errorMessage']}`)
+                            setErrorMessage(`Optimization Task: ${taskResponseJson['errorMessage']}`)
                         } else {
                             setOptimizationReportFileName(taskResponseJson['stat_path'])
                             setLoading(false)
@@ -91,7 +91,7 @@ const Upload = () => {
                     else if (dataJson.TaskStatus === "FAILURE") {
                         setIsPollingEnabled(false)
 
-                        console.log(dataJson)
+                        // console.log(dataJson)
                         setErrorMessage("Optimization Task failed")
                     }
                 })
@@ -137,7 +137,10 @@ const Upload = () => {
                 .then(((result) => {
                     const dataJson = result.data
 
+                    // console.log(dataJson.TaskId)
+
                     if (dataJson.TaskId) {
+                        // console.log(pendingTaskId)
                         setIsPollingEnabled(true)
                         setPendingTaskId(dataJson.TaskId)
                     }
