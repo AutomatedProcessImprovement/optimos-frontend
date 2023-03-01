@@ -140,9 +140,9 @@ const Upload = () => {
                     console.log(dataJson.TaskId)
 
                     if (dataJson.TaskId) {
+                        setPendingTaskId(dataJson.TaskId)
                         console.log(pendingTaskId)
                         setIsPollingEnabled(true)
-                        setPendingTaskId(dataJson.TaskId)
                     }
 
                 }))
