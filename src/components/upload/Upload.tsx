@@ -75,7 +75,7 @@ const Upload = () => {
             getTaskByTaskId(pendingTaskId)
                 .then((result:any) => {
                     const dataJson = result.data
-                    console.log(dataJson)
+                    console.log(result)
                     if (dataJson.TaskStatus === "SUCCESS") {
                         setIsPollingEnabled(false);
 
@@ -136,7 +136,7 @@ const Upload = () => {
                 simParams as Blob, consParams as Blob , bpmnModel as Blob)
                 .then(((result) => {
                     const dataJson = result.data
-
+                    console.log(result)
                     console.log(dataJson.TaskId)
 
                     if (dataJson.TaskId) {
