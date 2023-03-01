@@ -74,6 +74,7 @@ const Upload = () => {
     () => {
             getTaskByTaskId(pendingTaskId)
                 .then((result:any) => {
+                    console.log("Interval -> pendingtask")
                     const dataJson = result.data
                     console.log(result)
                     if (dataJson.TaskStatus === "SUCCESS") {
@@ -129,29 +130,30 @@ const Upload = () => {
     };
 
     const handleRequest = async () => {
-        setLoading(false)
-        if (areFilesPresent()) {
-            // Set info message
-            optimize(algorithm, approach, name, iterations,
-                simParams as Blob, consParams as Blob , bpmnModel as Blob)
-                .then(((result) => {
-                    const dataJson = result.data
-                    console.log(result)
-                    console.log(dataJson.TaskId)
+        setLoading(true)
 
-                    if (dataJson.TaskId) {
-                        setPendingTaskId(dataJson.TaskId)
-                        console.log(pendingTaskId)
-                        setIsPollingEnabled(true)
-                    }
-
-                }))
-                .catch((error: any) => {
-                    console.log(error.response)
-                    setErrorMessage(error.response.data.displayMessage)
-                })
-
+        if (!areFilesPresent()) {
+            return
         }
+
+        // Set info message
+        optimize(algorithm, approach, name, iterations,
+            simParams as Blob, consParams as Blob, bpmnModel as Blob)
+            .then(((result) => {
+                const dataJson = result.data
+                console.log(dataJson.TaskId)
+                console.log("in optimize")
+
+                if (dataJson.TaskId) {
+                    setIsPollingEnabled(true)
+                    setPendingTaskId(dataJson.TaskId)
+                }
+
+            }))
+            .catch((error: any) => {
+                console.log(error.response)
+                setErrorMessage(error.response.data.displayMessage)
+            })
     }
 
     const handleChange = (event: SelectChangeEvent | any) => {
