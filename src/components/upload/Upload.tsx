@@ -1,5 +1,4 @@
 import * as React from 'react'
-import FileDropzoneArea from "./FileDropzoneArea";
 import {
     FormControl,
     Grid,
@@ -18,6 +17,8 @@ import {getFileByFileName, getTaskByTaskId, optimize} from "../../api/api";
 import { useInterval } from 'usehooks-ts'
 import paths from '../../router/paths';
 import {useNavigate} from "react-router";
+import SnackBar from "../SnackBar";
+import {AlertColor} from "@mui/material/Alert";
 
 
 const Upload = () => {
@@ -31,6 +32,9 @@ const Upload = () => {
     const [name, setName] = useState<string>("")
 
     const [iterations, setIterations] = useState<number>(0)
+
+    const [snackMessage, setSnackMessage] = useState("");
+    const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
 
     const [isPollingEnabled, setIsPollingEnabled] = useState(false)
     const [pendingTaskId, setPendingTaskId] = useState("")
@@ -91,6 +95,7 @@ const Upload = () => {
                     }
                     else if (dataJson.TaskStatus === "FAILURE") {
                         setIsPollingEnabled(false)
+                        setLoading(false)
 
                         console.log(dataJson)
                         setErrorMessage("Optimization Task failed")
@@ -117,7 +122,6 @@ const Upload = () => {
     const onBpmnModelChange = (file: File) => {
         setBpmnModel(file)
     };
-
     const onSimParamsChange = (file: File) => {
         setSimParams(file)
     };
@@ -125,8 +129,25 @@ const Upload = () => {
         setConsParams(file)
     };
 
+    const setInfoMessage = (value: string) => {
+        updateSnackMessage(value)
+        setSnackColor("info")
+    };
+
     const setErrorMessage = (value: string) => {
-        console.log("WIP: ErrorMessage")
+        updateSnackMessage(value)
+        setSnackColor("error")
+        setLoading(false)
+    };
+
+    const updateSnackMessage = (text: string) => {
+        setSnackMessage(text)
+    };
+
+
+
+    const onSnackbarClose = () => {
+        updateSnackMessage("")
     };
 
     const handleRequest = async () => {
@@ -135,6 +156,8 @@ const Upload = () => {
         if (!areFilesPresent()) {
             return
         }
+        setInfoMessage("Optimization started...")
+
 
         // Set info message
         optimize(algorithm, approach, name, iterations,
@@ -313,6 +336,11 @@ const Upload = () => {
                     </Grid>
                 </Grid>
             </Grid>
+            {snackMessage && <SnackBar
+                message={snackMessage}
+                onSnackbarClose={onSnackbarClose}
+                severityLevel={snackColor}
+            />}
         </>
     )
 }
