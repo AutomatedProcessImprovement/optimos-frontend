@@ -78,9 +78,7 @@ const Upload = () => {
     () => {
             getTaskByTaskId(pendingTaskId)
                 .then((result:any) => {
-                    console.log("Interval -> pendingtask")
                     const dataJson = result.data
-                    console.log(result)
                     if (dataJson.TaskStatus === "SUCCESS") {
                         setIsPollingEnabled(false);
 
@@ -97,14 +95,12 @@ const Upload = () => {
                         setIsPollingEnabled(false)
                         setLoading(false)
 
-                        console.log(dataJson)
                         setErrorMessage("Optimization Task failed")
                     }
                 })
                 .catch((error: any) => {
                     setIsPollingEnabled(false)
 
-                    console.log(error)
                     const errorMessage = error?.response?.data?.displayMessage || "Something went wrong"
                     setErrorMessage("Task Executing: " + errorMessage)
                 })
@@ -157,6 +153,15 @@ const Upload = () => {
             return
         }
         setInfoMessage("Optimization started...")
+
+        navigate(paths.PARAMEDITOR_PATH, {
+            state: {
+                bpmnFile: bpmnModel,
+                simParamsFile: simParams,
+                consParamsFile: consParams
+            }
+        })
+        return
 
 
         // Set info message
