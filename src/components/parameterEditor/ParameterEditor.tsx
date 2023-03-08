@@ -10,7 +10,7 @@ import {
     Tooltip,
     useTheme
 } from '@mui/material';
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import CallSplitIcon from '@mui/icons-material/CallSplit';
 import GroupsIcon from '@mui/icons-material/Groups';
@@ -23,6 +23,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import useFormState from "./useFormState";
 import useJsonFile from "./useJsonFile";
 import {AlertColor} from "@mui/material/Alert";
+import BuildIcon from '@mui/icons-material/Build';
 
 import useTabVisibility, { TABS } from './useTabVisibility';
 import SnackBar from "../SnackBar";
@@ -30,8 +31,13 @@ import GlobalConstraints from "../globalConstraints/GlobalConstraints";
 import paths from "../../router/paths";
 import {useNavigate} from "react-router";
 import {useForm} from "react-hook-form";
-import {ScenarioProperties} from "../../JsonData";
-import ResourceConstraints from "../resourceConstraints/ResourceConstraints";
+import {ConsJsonData, ScenarioProperties} from "../../JsonData";
+import RCons from "../resourceConstraints/ResourceConstraints";
+import ScenarioConstraints from "../globalConstraints/ScenarioConstraints";
+import {getTaskByTaskId, optimize} from "../../api/api";
+import {useInterval} from "usehooks-ts";
+import DashBoard from "../DashBoard";
+import OptimizationResults from "../dashboard/OptimizationResults";
 
 interface LocationState {
     bpmnFile: File,
@@ -41,9 +47,11 @@ interface LocationState {
 
 const tooltip_desc: { [key: string]: string } = {
     GLOBAL_CONSTRAINTS:
-        "test",
+        "Define the algorithm, approach and number of iterations",
+    SCENARIO_CONSTRAINTS:
+        "Define the top-level restrictions like the time granularity and the maximum work units",
     RESOURCE_CONSTRAINTS:
-        "test",
+        "Define resource specific constraints, their maximum capacity and working masks",
     SIMULATION_RESULTS:
         "",
 }
@@ -61,6 +69,8 @@ const ParameterEditor = () => {
 
     const linkDownloadRef = useRef<HTMLAnchorElement>(null)
 
+    const [isPollingEnabled, setIsPollingEnabled] = useState(false)
+    const [pendingTaskId, setPendingTaskId] = useState("")
 
     const [activeStep, setActiveStep] = useState<TABS>(TABS.GLOBAL_CONSTRAINTS)
     const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
@@ -71,6 +81,10 @@ const ParameterEditor = () => {
     const {formState: {errors, isValid, isSubmitted, submitCount}, getValues, handleSubmit} = formState
 
     const {visibleTabs, getIndexOfTab} = useTabVisibility()
+
+    const [optimizationReportFileName, setOptimizationReportFileName] = useState("")
+    const [optimizationReportInfo, setOptimizationReportInfo] = useState("")
+
 
     const scenarioState = useForm<ScenarioProperties>({
         mode: "onBlur",
@@ -83,6 +97,45 @@ const ParameterEditor = () => {
     const { getValues: getScenarioValues, trigger: triggerScenario, formState: { errors: scenarioErrors } } = scenarioState
 
 
+    useInterval(
+        () => {
+            getTaskByTaskId(pendingTaskId)
+                .then((result: any) => {
+                    const dataJson = result.data
+                    console.log(dataJson.TaskStatus)
+                    if (dataJson.TaskStatus === "SUCCESS") {
+                        setIsPollingEnabled(false)
+                        console.log(dataJson.TaskResponse)
+
+                        // setCurrSimulatedOutput(dataJson.TaskResponse)
+                        setOptimizationReportFileName(dataJson.TaskResponse['stat_path'])
+                        setOptimizationReportInfo(dataJson.TaskResponse['report'])
+                        console.log(dataJson.TaskResponse)
+
+                        // redirect to results step
+                        setActiveStep(TABS.SIMULATION_RESULTS)
+
+                        // hide info message
+                        onSnackbarClose()
+                    }
+                    else if (dataJson.TaskStatus === "FAILURE") {
+                        setIsPollingEnabled(false)
+
+                        console.log(dataJson)
+                        setErrorMessage("Simulation Task failed")
+                    }
+                })
+                .catch((error: any) => {
+                    setIsPollingEnabled(false)
+
+                    console.log(error)
+                    console.log(error.response)
+                    const errorMessage = error?.response?.data?.displayMessage || "Something went wrong"
+                    setErrorMessage("Task Executing: " + errorMessage)
+                })
+        },
+        isPollingEnabled ? 3000 : null
+    );
 
     const setErrorMessage = (value: string) => {
         setSnackColor("error")
@@ -111,15 +164,25 @@ const ParameterEditor = () => {
                     setErrorMessage={setErrorMessage}
 
                 />
-            case TABS.RESOURCE_CONSTRAINTS:
-                return <ResourceConstraints
+            case TABS.SCENARIO_CONSTRAINTS:
+                return <ScenarioConstraints
+                    scenarioFormState={scenarioState}
                     jsonFormState={formState}
                     setErrorMessage={setErrorMessage}
 
                 />
+            case TABS.RESOURCE_CONSTRAINTS:
+                return <RCons
+                    // jsonFormState={formState}
+                    setErrorMessage={setErrorMessage}
+
+                    formState={formState}
+                />
             case TABS.SIMULATION_RESULTS:
-                if (true)
-                    return <></>
+                if (optimizationReportInfo !== "")
+                    return <OptimizationResults
+                        reportJson={optimizationReportInfo}
+                    />
 
                 return <></>
         }
@@ -133,12 +196,16 @@ const ParameterEditor = () => {
         let lastStep = false
         switch (currentTab) {
             case TABS.GLOBAL_CONSTRAINTS:
-                currError = errors.hours_in_day
+                currError = scenarioErrors
+                Icon = <BuildIcon style={styles}/>
+                break
+            case TABS.SCENARIO_CONSTRAINTS:
+                currError = errors.time_var || errors.hours_in_day || errors.max_cap || errors.max_shift_size || errors.hours_in_day || errors.max_shift_blocks
                 Icon = <SettingsIcon style={styles}/>
                 break
             case TABS.RESOURCE_CONSTRAINTS:
                 currError = errors.hours_in_day
-                Icon = <SettingsIcon style={styles}/>
+                Icon = <GroupsIcon style={styles}/>
                 break
             case TABS.SIMULATION_RESULTS:
                 lastStep = true
@@ -146,8 +213,55 @@ const ParameterEditor = () => {
                 break
             default:
                 return <></>
+
         }
+        return Icon
     }
+
+    const fromContentToBlob = (values: any) => {
+        const content = JSON.stringify(values)
+        const blob = new Blob([content], { type: "text/plain" })
+        console.log(content)
+        return blob
+    };
+
+    const getBlobBasedOnExistingInput = (): Blob => {
+        const values = getValues() as ConsJsonData
+        const blob = fromContentToBlob(values)
+
+        return blob
+    };
+
+
+    const onStartOptimization = async () => {
+
+        if (!isValid) {
+            return;
+        }
+        setInfoMessage("Optimization started...")
+        const newBlob = getBlobBasedOnExistingInput()
+        const {num_iterations: num_iterations, approach: approach, algorithm: algorithm} = getScenarioValues()
+
+
+        optimize(algorithm, approach, "name", num_iterations,
+            simParamsFile, newBlob, bpmnFile)
+            .then(((result) => {
+                const dataJson = result.data
+                console.log(dataJson.TaskId)
+                console.log("in optimize")
+
+                if (dataJson.TaskId) {
+                    setIsPollingEnabled(true)
+                    setPendingTaskId(dataJson.TaskId)
+                }
+
+            }))
+            .catch((error: any) => {
+                console.log(error.response)
+                setErrorMessage(error.response.data.displayMessage)
+            })
+    }
+
     return (
         <form>
             <Grid container alignItems="center" justifyContent="center">
@@ -164,7 +278,8 @@ const ParameterEditor = () => {
                         <Grid item container xs={3} justifyContent="center">
                             <ButtonGroup>
                                 <Button
-                                    type="submit"
+                                    onClick={onStartOptimization}
+                                    // type="submit"
                                 >Start Optimization</Button>
                             </ButtonGroup>
                         </Grid>
@@ -182,7 +297,7 @@ const ParameterEditor = () => {
                         </Grid>
                     </Grid>
                     <Grid item container xs={12} alignItems="center" justifyContent="center" sx={{paddingTop: '20px'}}>
-                        <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)}
+                        <Stepper nonLinear alternativeLabel activeStep={getIndexOfTab(activeStep)} connector={<></>}
                                  >
                             {Object.entries(visibleTabs.getAllItems()).map(([key, label]: [string, string]) => {
                                 const keyTab = key as keyof typeof TABS
@@ -190,8 +305,8 @@ const ParameterEditor = () => {
 
                                 return <Step key={label}>
                                     <Tooltip title={tooltip_desc[key]}>
-                                        <StepButton color="inherit" onClick={() => setActiveStep(valueTab)}
-                                                    icon={getStepIcon(valueTab)}>
+                                        <StepButton color="inherit" onClick={() => setActiveStep(valueTab)} icon={getStepIcon(valueTab)}
+                                        >
                                             {label}
                                         </StepButton>
                                     </Tooltip>

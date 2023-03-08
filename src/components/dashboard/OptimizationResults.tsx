@@ -10,16 +10,14 @@ import * as React from "react";
 import 'moment-duration-format';
 import Box from "@mui/material/Box";
 
-interface LocationState {
-    reportFile: File
+interface SimulationResultsProps {
     reportJson: string
 }
 
-const DashBoard = () => {
-    const { state } = useLocation()
-    const { reportFile, reportJson } = state as LocationState
+const OptimizationResults = (props: SimulationResultsProps) => {
 
-    const [value, setValue] = React.useState(0);
+    const { reportJson } = props
+    const [report, setReport] = useState<any>()
 
     const [fileDownloadUrl, setFileDownloadUrl] = useState("")
     const [fileDownloadSimParams, setFileDownloadSimParams] = useState("")
@@ -28,7 +26,13 @@ const DashBoard = () => {
     const link2DownloadRef = useRef<HTMLAnchorElement>(null)
     const link3DownloadRef = useRef<HTMLAnchorElement>(null)
 
-    const report = JSON.parse(reportJson)
+    useEffect(() => {
+        setReport(JSON.parse(reportJson))
+    })
+
+    const blob = new Blob([reportJson], {type: "application/json"});
+    const optimizationReportFile = new File([blob], "name", { type: "application/json" })
+
     console.log(report)
 
     useEffect(() => {
@@ -73,7 +77,7 @@ const DashBoard = () => {
 
     const onDownload = () => {
 
-        const fileDownloadUrl = URL.createObjectURL(reportFile)
+        const fileDownloadUrl = URL.createObjectURL(optimizationReportFile)
         setFileDownloadUrl(fileDownloadUrl)
     }
 
@@ -109,7 +113,6 @@ const DashBoard = () => {
             'aria-controls': `simple-tabpanel-${index}`,
         };
     }
-
 
     const writeName = (item: any) => {
         switch (item.name) {
@@ -369,4 +372,4 @@ const DashBoard = () => {
     // )
 }
 
-export default DashBoard
+export default OptimizationResults

@@ -14,10 +14,11 @@ interface GlobalConstraintsProps {
 
 const GlobalConstraints = (props: GlobalConstraintsProps) => {
     const {
-        scenarioFormState: { control: scenarioFormControl, formState: scenarioErrors },
-        jsonFormState: { control: consFormControl, formState: consErrors },
+        scenarioFormState: {control: scenarioFormControl, formState: {errors: scenarioErrors}},
+        jsonFormState: { control: consFormControl, formState: {errors: consErrors} },
         setErrorMessage
     } = props
+
 
     return (
         <>
@@ -49,7 +50,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                                         onChange={(e) => {
                                             onChange(String(e.target.value))
                                         }}
-                                        error={scenarioErrors?.errors.algorithm !== undefined}
+                                        error={scenarioErrors?.algorithm !== undefined}
                                         variant="standard"
                                     >
                                     <MenuItem value={"HC-STRICT"}>HC-STRICT | Hill Climb strict</MenuItem>
@@ -69,20 +70,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                             }}
                             render={({ field: { onChange, value } }) => (
                                 <>
-                                    {/*<TextField*/}
-                                    {/*    type="text"*/}
-                                    {/*    value={value}*/}
-                                    {/*    label="Approach for the optimization"*/}
-                                    {/*    onChange={(e) => {*/}
-                                    {/*        onChange(String(e.target.value))*/}
-                                    {/*    }}*/}
-                                    {/*    error={errors?.num_iterations !== undefined}*/}
-                                    {/*    helperText={errors?.num_iterations?.message || ""}*/}
-                                    {/*    variant="standard"*/}
-                                    {/*    style={{ width: "50%" }}*/}
-                                    {/*/>*/}
                                     <InputLabel id="approach-select-label">Approach</InputLabel>
-
                                     <Select
                                         required={true}
                                         sx={{minWidth: 250}}
@@ -94,7 +82,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                                         onChange={(e) => {
                                             onChange(String(e.target.value))
                                         }}
-                                        error={scenarioErrors.errors?.num_iterations !== undefined}
+                                        error={scenarioErrors?.num_iterations !== undefined}
                                         variant="standard"
                                     >
                                         <MenuItem value={"CA"}>CA | Calendar Only</MenuItem>
@@ -130,8 +118,8 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                                         step: "1",
                                         min: "1",
                                     }}
-                                    error={scenarioErrors?.errors.num_iterations !== undefined}
-                                    helperText={scenarioErrors?.errors.num_iterations?.message || ""}
+                                    error={scenarioErrors?.num_iterations !== undefined}
+                                    helperText={scenarioErrors?.num_iterations?.message || ""}
                                     variant="standard"
                                     style={{ width: "50%" }}
                                 />
@@ -140,156 +128,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                     </Grid>
                 </Grid>
             </Card>
-            <Card elevation={5} sx={{ p: 2, width:"100%" }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <Typography variant="h6" align="left">
-                            Scenario constraints
-                        </Typography>
 
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Controller
-                            name="max_cap"
-                            control={consFormControl}
-                            rules={{
-                                required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
-                            }}
-                            render={({ field: { onChange, value } }) => (
-                                <TextField
-                                    type="number"
-                                    value={value}
-                                    label="Maximum capacity"
-                                    onChange={(e) => {
-                                        onChange(Number(e.target.value))
-                                    }}
-                                    inputProps={{
-                                        step: "1",
-                                        min: "1",
-                                    }}
-                                    error={consErrors?.errors.max_cap !== undefined}
-                                    helperText={consErrors?.errors.max_cap?.message || "Maximum capacity"}
-                                    variant="standard"
-                                    style={{ width: "50%" }}
-                                />
-                            )}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Controller
-                            name="max_shift_size"
-                            control={consFormControl}
-                            rules={{
-                                required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
-                            }}
-                            render={({ field: { onChange, value } }) => (
-                                <TextField
-                                    type="number"
-                                    value={value}
-                                    label="Max shift size"
-                                    onChange={(e) => {
-                                        onChange(Number(e.target.value))
-                                    }}
-                                    inputProps={{
-                                        step: "1",
-                                        min: "1",
-                                    }}
-                                    error={consErrors?.errors.max_shift_size !== undefined}
-                                    helperText={consErrors?.errors.max_shift_size?.message || "Max shift size"}
-                                    variant="standard"
-                                    style={{ width: "50%" }}
-                                />
-                            )}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Controller
-                            name="max_shift_blocks"
-                            control={consFormControl}
-                            rules={{
-                                required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
-                            }}
-                            render={({ field: { onChange, value } }) => (
-                                <TextField
-                                    type="number"
-                                    value={value}
-                                    label="Max shifts / day"
-                                    onChange={(e) => {
-                                        onChange(Number(e.target.value))
-                                    }}
-                                    inputProps={{
-                                        step: "1",
-                                        min: "1",
-                                    }}
-                                    error={consErrors?.errors.max_shift_blocks !== undefined}
-                                    helperText={consErrors?.errors.max_shift_blocks?.message || "Max shifts / day"}
-                                    variant="standard"
-                                    style={{ width: "50%" }}
-                                />
-                            )}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Controller
-                            name="hours_in_day"
-                            control={consFormControl}
-                            rules={{
-                                required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
-                            }}
-                            render={({ field: { onChange, value } }) => (
-                                <TextField
-                                    type="number"
-                                    value={value}
-                                    label="Hours per day (NOT IN USE)"
-                                    onChange={(e) => {
-                                        onChange(Number(e.target.value))
-                                    }}
-                                    inputProps={{
-                                        step: "1",
-                                        min: "1",
-                                    }}
-                                    error={consErrors?.errors.hours_in_day !== undefined}
-                                    helperText={consErrors?.errors.hours_in_day?.message || "Hours per day (NOT IN USE)"}
-                                    variant="standard"
-                                    style={{ width: "50%" }}
-                                />
-                            )}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Controller
-                            name="time_var"
-                            control={consFormControl}
-                            rules={{
-                                required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
-                            }}
-                            render={({ field: { onChange, value } }) => (
-                                <TextField
-                                    type="number"
-                                    value={value}
-                                    label="Time granularity"
-                                    onChange={(e) => {
-                                        onChange(Number(e.target.value))
-                                    }}
-                                    inputProps={{
-                                        step: "1",
-                                        min: "1",
-                                    }}
-                                    error={consErrors?.errors.time_var !== undefined}
-                                    helperText={consErrors?.errors.time_var?.message || "Time granularity"}
-                                    variant="standard"
-                                    style={{ width: "50%" }}
-                                />
-                            )}
-                        />
-                    </Grid>
-                </Grid>
-            </Card>
         </>
     )
 }

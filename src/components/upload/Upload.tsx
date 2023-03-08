@@ -1,4 +1,5 @@
 import * as React from 'react'
+import {useEffect, useState} from 'react'
 import {
     FormControl,
     Grid,
@@ -11,10 +12,9 @@ import {
     Typography
 } from "@mui/material";
 import {LoadingButton} from '@mui/lab';
-import {useEffect, useState} from "react";
 import FileUploader from "../FileUploader";
 import {getFileByFileName, getTaskByTaskId, optimize} from "../../api/api";
-import { useInterval } from 'usehooks-ts'
+import {useInterval} from 'usehooks-ts'
 import paths from '../../router/paths';
 import {useNavigate} from "react-router";
 import SnackBar from "../SnackBar";
@@ -110,9 +110,8 @@ const Upload = () => {
 
 
     const areFilesPresent = () => {
-        const files_complete = simParams != null && consParams != null && bpmnModel != null
-        const params_complete = approach !== '' && algorithm !== '' && name !== '' && iterations != 0
-        return files_complete && params_complete
+        // const params_complete = approach !== '' && algorithm !== '' && name !== '' && iterations != 0
+        return simParams != null && consParams != null && bpmnModel != null
     }
 
     const onBpmnModelChange = (file: File) => {
@@ -161,37 +160,10 @@ const Upload = () => {
                 consParamsFile: consParams
             }
         })
-        return
-
-
-        // Set info message
-        optimize(algorithm, approach, name, iterations,
-            simParams as Blob, consParams as Blob, bpmnModel as Blob)
-            .then(((result) => {
-                const dataJson = result.data
-                console.log(dataJson.TaskId)
-                console.log("in optimize")
-
-                if (dataJson.TaskId) {
-                    setIsPollingEnabled(true)
-                    setPendingTaskId(dataJson.TaskId)
-                }
-
-            }))
-            .catch((error: any) => {
-                console.log(error.response)
-                setErrorMessage(error.response.data.displayMessage)
-            })
     }
 
     const handleChange = (event: SelectChangeEvent | any) => {
-        if (event.target.name === 'iterations') {
-            setIterations(event.target.value)
-        } else if (event.target.name === 'approach') {
-            setApproach(event.target.value as string);
-        } else if (event.target.name === 'algorithm') {
-            setAlgorithm(event.target.value as string);
-        } else if (event.target.name === 'scenarioName') {
+        if (event.target.name === 'scenarioName') {
             setName(event.target.value)
         }
     };
@@ -200,7 +172,7 @@ const Upload = () => {
         <>
             <Grid container alignItems="center" justifyContent="center" spacing={4} style={{ paddingTop: '30px' }} className="centeredContent">
                 <Grid item xs={6}>
-                    <Paper elevation={5} sx={{ p: 3, minHeight: '30vw' }}>
+                    <Paper elevation={5} sx={{ p: 3, minHeight: '25vw' }}>
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <Typography variant="h4" align="center">
@@ -267,65 +239,6 @@ const Upload = () => {
                                             />
                                         </Grid>
                                 </Grid>
-                                <Grid container sx={{paddingTop: '5%'}}>
-                                    <Grid item xs={4}>
-                                        <Typography >Algorithm selection</Typography>
-                                        <FormControl sx={{marginTop: '10px'}}>
-                                            <InputLabel id={"algorithm-select-label"}>Algorithm</InputLabel>
-                                            <Select
-                                                required={true}
-                                                name={"algorithm"}
-                                                sx={{minWidth: 250}}
-                                                labelId="algorithm-select-label"
-                                                id="approach-select"
-                                                value={algorithm}
-                                                label="Algorithm"
-                                                onChange={handleChange}
-                                                placeholder={"HC"}
-                                            >
-                                                <MenuItem value={"HC-STRICT"}>HC-STRICT | Hill Climb strict</MenuItem>
-                                                <MenuItem value={"HC-FLEX"}>HC-FLEX | Hill Climb flex</MenuItem>
-                                                <MenuItem value={"TS"}>TS | Tabu search </MenuItem>
-                                                <MenuItem value={"ALL"}>ALL | All algorithms </MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={4}>
-                                        <Typography>Approach Selection</Typography>
-                                        <FormControl sx={{marginTop: '10px'}}>
-                                            <InputLabel id="approach-select-label">Approach</InputLabel>
-                                            <Select
-                                                required={true}
-                                                sx={{minWidth: 250}}
-                                                labelId="approach-select-label"
-                                                id="approach-select"
-                                                value={approach}
-                                                name={"approach"}
-                                                label="Approach"
-                                                onChange={handleChange}
-                                            >
-                                                <MenuItem value={"CA"}>CA | Calendar Only</MenuItem>
-                                                <MenuItem value={"AR"}>AR | Add/Remove Only</MenuItem>
-                                                <MenuItem value={"CO"}>CO | CA/AR combined </MenuItem>
-                                                <MenuItem value={"CAAR"}>CAAR | First CA then AR </MenuItem>
-                                                <MenuItem value={"ARCA"}>ARCA | First AR then CA </MenuItem>
-                                                <MenuItem value={"ALL"}>ALL | All approaches </MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={4}>
-                                        <Typography>Number of iterations</Typography>
-                                        <TextField
-                                            onChange={handleChange}
-                                            name={"iterations"}
-                                            sx={{minWidth: 250, marginTop: '10px'}} id="iterations_textfield" label="Iterations" variant="outlined" />
-                                    </Grid>
-
-                                </Grid>
-                                {/*<FileDropzoneArea*/}
-                                {/*    acceptedFiles={['.bpmn', '.json']}*/}
-                                {/*    setSelectedFiles={setSelectedFiles}*/}
-                                {/*/>*/}
                             </Grid>
                         </Grid>
                     </Paper>
