@@ -105,6 +105,28 @@ const ParameterEditor = () => {
                 .then((result: any) => {
                     const dataJson = result.data
                     console.log(dataJson.TaskStatus)
+                    if (dataJson.TaskStatus === "STARTED") {
+                        setInfoMessage("Optimization still in progress...")
+                    }
+                })
+                .catch((error: any) => {
+                    setIsPollingEnabled(false)
+
+                    console.log(error)
+                    console.log(error.response)
+                    const errorMessage = error?.response?.data?.displayMessage || "Something went wrong"
+                    setErrorMessage("Task Executing: " + errorMessage)
+                })
+        },
+        isPollingEnabled ? 60000 : null
+    );
+
+    useInterval(
+        () => {
+            getTaskByTaskId(pendingTaskId)
+                .then((result: any) => {
+                    const dataJson = result.data
+                    console.log(dataJson.TaskStatus)
                     if (dataJson.TaskStatus === "SUCCESS") {
                         setIsPollingEnabled(false)
                         console.log(dataJson.TaskResponse)
