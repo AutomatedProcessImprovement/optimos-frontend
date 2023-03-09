@@ -23,7 +23,7 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
                         <Typography variant="h6" align="left">
-                            Scenario constraints
+                            Global scenario constraints
                         </Typography>
 
                     </Grid>
@@ -163,7 +163,9 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                                     onChange={(e) => {
                                         onChange(String(e.target.value))
                                         setTimevar(Number(e.target.value))
+
                                 }}
+                                    style={{ width: "50%" }}
                                 error={errors?.time_var !== undefined}
                                 variant="standard"
                                 >

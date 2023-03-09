@@ -59,6 +59,7 @@ interface AlwaysWorkMask {
 }
 
 export interface ScenarioProperties {
+    scenario_name: string
     num_iterations: number,
     algorithm: string,
     approach: string,

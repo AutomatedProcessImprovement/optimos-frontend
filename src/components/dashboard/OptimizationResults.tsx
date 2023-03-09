@@ -11,14 +11,17 @@ import 'moment-duration-format';
 import Box from "@mui/material/Box";
 
 interface SimulationResultsProps {
-    reportJson: string
+    reportJson: any,
+    reportFileName: string,
+
 }
 
 const OptimizationResults = (props: SimulationResultsProps) => {
 
-    const { reportJson } = props
-    const [report, setReport] = useState<any>()
+    const { reportJson, reportFileName } = props
+    const [report, setReport] = useState<any | null>()
 
+    const [optimizationReportFile, setOptimizationReportFile] = useState<File>()
     const [fileDownloadUrl, setFileDownloadUrl] = useState("")
     const [fileDownloadSimParams, setFileDownloadSimParams] = useState("")
     const [fileDownloadConsParams, setFileDownloadConsParams] = useState("")
@@ -27,13 +30,8 @@ const OptimizationResults = (props: SimulationResultsProps) => {
     const link3DownloadRef = useRef<HTMLAnchorElement>(null)
 
     useEffect(() => {
-        setReport(JSON.parse(reportJson))
-    })
-
-    const blob = new Blob([reportJson], {type: "application/json"});
-    const optimizationReportFile = new File([blob], "name", { type: "application/json" })
-
-    console.log(report)
+        setReport(reportJson)
+    }, [reportJson])
 
     useEffect(() => {
         if (fileDownloadUrl !== "" && fileDownloadUrl !== undefined) {
@@ -76,7 +74,9 @@ const OptimizationResults = (props: SimulationResultsProps) => {
 
 
     const onDownload = () => {
+        const blob = new Blob([JSON.stringify(reportJson)], {type: "application/json"});
 
+        const optimizationReportFile = new File([blob], "name", { type: "application/json" })
         const fileDownloadUrl = URL.createObjectURL(optimizationReportFile)
         setFileDownloadUrl(fileDownloadUrl)
     }
@@ -134,7 +134,7 @@ const OptimizationResults = (props: SimulationResultsProps) => {
 
     return (
         <>
-            <Box sx={{ width: '100%', mt:1, zIndex: 100000 }}>
+            <Box sx={{ width: '100%', mt:10, zIndex: 100000 }}>
                 <Box>
                     <Grid
                         container
@@ -178,7 +178,7 @@ const OptimizationResults = (props: SimulationResultsProps) => {
                     >Download json</a>
                 </Grid>
             </Grid>
-            { report.map((item: any, idx: number) => {
+            { report && report.map((item: any, idx: number) => {
                 console.log(item)
                 console.log(idx)
                 return <TabPanel index={idx} value={idx}>

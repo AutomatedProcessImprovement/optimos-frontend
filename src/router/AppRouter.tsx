@@ -1,6 +1,5 @@
 import {Routes, Route} from "react-router-dom";
 import Upload from "../components/upload/Upload";
-import DashBoard from "../components/DashBoard";
 import paths from "./paths";
 import ParameterEditor from "../components/parameterEditor/ParameterEditor";
 
@@ -9,7 +8,6 @@ const AppRouter = () => {
         <Routes>
             <Route path={"/"} element={<Upload/>} />
             <Route path={paths.UPLOAD_PATH} element={<Upload/>} />
-            <Route path={paths.DASHBOARD_PATH} element={<DashBoard/>} />
             <Route path={paths.PARAMEDITOR_PATH} element={<ParameterEditor/>} />
         </Routes>
     )

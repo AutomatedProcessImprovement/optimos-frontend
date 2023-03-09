@@ -29,7 +29,30 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                             Scenario specification
                         </Typography>
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={8}>
+                        <Controller
+                            name="scenario_name"
+                            control={scenarioFormControl}
+                            rules={{
+                                required: REQUIRED_ERROR_MSG,
+                            }}
+                            render={({ field: { onChange, value } }) => (
+                                <TextField
+                                    type="text"
+                                    value={value}
+                                    label="Scenario name"
+                                    onChange={(e) => {
+                                        onChange(Number(e.target.value))
+                                    }}
+                                    error={scenarioErrors?.scenario_name !== undefined}
+                                    helperText={scenarioErrors?.scenario_name?.message || ""}
+                                    variant="standard"
+                                    style={{ width: "75%" }}
+                                />
+                            )}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
                         <Controller
                             name="algorithm"
                             control={scenarioFormControl}
@@ -61,7 +84,35 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                             )}
                         />
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={8}>
+                        <Controller
+                            name="num_iterations"
+                            control={scenarioFormControl}
+                            rules={{
+                                required: REQUIRED_ERROR_MSG,
+                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                            }}
+                            render={({ field: { onChange, value } }) => (
+                                <TextField
+                                    type="number"
+                                    value={value}
+                                    label="Total number of iterations"
+                                    onChange={(e) => {
+                                        onChange(Number(e.target.value))
+                                    }}
+                                    inputProps={{
+                                        step: "1",
+                                        min: "1",
+                                    }}
+                                    error={scenarioErrors?.num_iterations !== undefined}
+                                    helperText={scenarioErrors?.num_iterations?.message || ""}
+                                    variant="standard"
+                                    style={{ width: "75%" }}
+                                />
+                            )}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
                         <Controller
                             name="approach"
                             control={scenarioFormControl}
@@ -98,34 +149,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                             )}
                         />
                     </Grid>
-                    <Grid item xs={12} md={12}>
-                        <Controller
-                            name="num_iterations"
-                            control={scenarioFormControl}
-                            rules={{
-                                required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
-                            }}
-                            render={({ field: { onChange, value } }) => (
-                                <TextField
-                                    type="number"
-                                    value={value}
-                                    label="Total number of iterations"
-                                    onChange={(e) => {
-                                        onChange(Number(e.target.value))
-                                    }}
-                                    inputProps={{
-                                        step: "1",
-                                        min: "1",
-                                    }}
-                                    error={scenarioErrors?.num_iterations !== undefined}
-                                    helperText={scenarioErrors?.num_iterations?.message || ""}
-                                    variant="standard"
-                                    style={{ width: "50%" }}
-                                />
-                            )}
-                        />
-                    </Grid>
+
                 </Grid>
             </Card>
 

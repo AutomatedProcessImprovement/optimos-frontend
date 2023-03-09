@@ -22,9 +22,10 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import useFormState from "./useFormState";
 import useJsonFile from "./useJsonFile";
+import { saveAs } from "file-saver";
+
 import {AlertColor} from "@mui/material/Alert";
 import BuildIcon from '@mui/icons-material/Build';
-
 import useTabVisibility, { TABS } from './useTabVisibility';
 import SnackBar from "../SnackBar";
 import GlobalConstraints from "../globalConstraints/GlobalConstraints";
@@ -36,8 +37,8 @@ import RCons from "../resourceConstraints/ResourceConstraints";
 import ScenarioConstraints from "../globalConstraints/ScenarioConstraints";
 import {getTaskByTaskId, optimize} from "../../api/api";
 import {useInterval} from "usehooks-ts";
-import DashBoard from "../DashBoard";
 import OptimizationResults from "../dashboard/OptimizationResults";
+import JSZip from "jszip";
 
 interface LocationState {
     bpmnFile: File,
@@ -83,12 +84,13 @@ const ParameterEditor = () => {
     const {visibleTabs, getIndexOfTab} = useTabVisibility()
 
     const [optimizationReportFileName, setOptimizationReportFileName] = useState("")
-    const [optimizationReportInfo, setOptimizationReportInfo] = useState("")
+    const [optimizationReportInfo, setOptimizationReportInfo] = useState<string | null>(null)
 
 
     const scenarioState = useForm<ScenarioProperties>({
         mode: "onBlur",
         defaultValues: {
+            scenario_name: "My first scenario",
             num_iterations: 100,
             algorithm: "HC-FLEX",
             approach: "CO"
@@ -179,11 +181,13 @@ const ParameterEditor = () => {
                     formState={formState}
                 />
             case TABS.SIMULATION_RESULTS:
-                if (optimizationReportInfo !== "")
+                if (!!optimizationReportInfo) {
+                    console.log(optimizationReportInfo)
                     return <OptimizationResults
                         reportJson={optimizationReportInfo}
-                    />
-
+                        reportFileName={optimizationReportFileName}
+                    />;
+                }
                 return <></>
         }
     };
@@ -218,10 +222,25 @@ const ParameterEditor = () => {
         return Icon
     }
 
+    const onDownloadScenarioFilesAsZip = () => {
+
+        const files = [bpmnFile, simParamsFile, consParamsFile]
+        const zip = new JSZip();
+
+        files.forEach((file) => {
+            zip.file(file.name, file);
+        });
+        zip
+            .generateAsync({ type: "blob" })
+            .then(function (content) {
+                saveAs(content, "files.zip");
+            })
+            .catch((e) => console.log(e));
+    }
+
     const fromContentToBlob = (values: any) => {
         const content = JSON.stringify(values)
         const blob = new Blob([content], { type: "text/plain" })
-        console.log(content)
         return blob
     };
 
@@ -240,10 +259,10 @@ const ParameterEditor = () => {
         }
         setInfoMessage("Optimization started...")
         const newBlob = getBlobBasedOnExistingInput()
-        const {num_iterations: num_iterations, approach: approach, algorithm: algorithm} = getScenarioValues()
+        const {num_iterations: num_iterations, approach: approach, algorithm: algorithm, scenario_name: scenario_name} = getScenarioValues()
 
 
-        optimize(algorithm, approach, "name", num_iterations,
+        optimize(algorithm, approach, scenario_name, num_iterations,
             simParamsFile, newBlob, bpmnFile)
             .then(((result) => {
                 const dataJson = result.data
@@ -288,7 +307,8 @@ const ParameterEditor = () => {
                                 <Button
                                     type="button"
                                     variant="outlined"
-                                >Download files</Button>
+                                    onClick={onDownloadScenarioFilesAsZip}
+                                >Download scenario files</Button>
                                 <a
                                     style={{display: "none"}}
                                     download={"json-file-name.json"}

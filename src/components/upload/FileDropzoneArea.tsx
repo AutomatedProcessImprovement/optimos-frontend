@@ -1,7 +1,7 @@
-import React, { Component } from "react";
+import React, {Component, useEffect, useState} from "react";
 import { DropzoneArea } from "mui-file-dropzone";
 import {makeStyles} from "@mui/material";
-
+import JSZip from 'jszip'
 
 interface DropzoneAreaProps {
     acceptedFiles: string[];
@@ -12,11 +12,16 @@ const FileDropzoneArea = (props: DropzoneAreaProps) => {
     const { acceptedFiles, setSelectedFiles } = props
 
     const onChange = (_files: File[]) => {
-        setSelectedFiles(_files)
+        if (_files.length === 1 && _files[0].name.endsWith(".zip")) {
+            setSelectedFiles(_files[0]);
+        } else {
+            setSelectedFiles(_files);
+        }
     }
     const onDelete = (_files: File) => {
-        console.log("WIP: onDelete")
+        setSelectedFiles(undefined)
     }
+
 
     return <DropzoneArea
         onChange={onChange}

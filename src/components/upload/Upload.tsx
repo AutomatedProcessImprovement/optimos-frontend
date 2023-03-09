@@ -19,98 +19,77 @@ import paths from '../../router/paths';
 import {useNavigate} from "react-router";
 import SnackBar from "../SnackBar";
 import {AlertColor} from "@mui/material/Alert";
+import FileDropzoneArea from "./FileDropzoneArea";
+import JSZip from "jszip";
 
 
 const Upload = () => {
     const [loading, setLoading] = useState<boolean>(false);
+
     const [simParams, setSimParams] = useState<File | null>(null);
     const [consParams, setConsParams] = useState<File | null>(null);
     const [bpmnModel, setBpmnModel] = useState<File | null>(null);
-
-    const [approach, setApproach] = useState<string>("")
-    const [algorithm, setAlgorithm] = useState<string>("")
-    const [name, setName] = useState<string>("")
-
-    const [iterations, setIterations] = useState<number>(0)
+    const [combinedFiles, setCombinedFiles] = useState<File | File[]>()
 
     const [snackMessage, setSnackMessage] = useState("");
     const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
-
-    const [isPollingEnabled, setIsPollingEnabled] = useState(false)
-    const [pendingTaskId, setPendingTaskId] = useState("")
-
-    const [optimizationReportFileName, setOptimizationReportFileName] = useState("")
 
 
 
     const navigate = useNavigate()
 
+
     useEffect(() => {
-        if (optimizationReportFileName === "") {
+        if (combinedFiles === undefined) {
+            setSimParams(null)
+            setBpmnModel(null)
+            setConsParams(null)
             return
         }
-        getFileByFileName(optimizationReportFileName)
-            .then((result: any) => {
-                const jsonString = JSON.stringify(result.data)
-                const blob = new Blob([jsonString], {type: "application/json"});
+        if (combinedFiles instanceof Array<File>) {
+            for (const combinedFilesKey in combinedFiles) {
+                if (combinedFiles[combinedFilesKey].name.endsWith(".bpmn")) {
+                    setBpmnModel(combinedFiles[combinedFilesKey])
+                }
+                if (combinedFiles[combinedFilesKey].name.endsWith(".json")) {
 
-                const optimizationReportFile = new File([blob], "name", { type: "application/json" })
-
-
-                navigate(paths.DASHBOARD_PATH, {
-                    state: {
-                        reportFile: optimizationReportFile,
-                        reportJson: jsonString
+                    if (combinedFiles[combinedFilesKey].name.includes("constraints")) {
+                        setConsParams(combinedFiles[combinedFilesKey])
+                    } else {
+                        setSimParams(combinedFiles[combinedFilesKey])
                     }
-                })
-
-
-            })
-            .catch((error: any) => {
-                console.log(error?.response || error)
-                const errorMessage = error?.response?.data?.displayMessage || "Something went wrong"
-                setErrorMessage("Loading File: " + errorMessage)
-            })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [optimizationReportFileName])
-
-    useInterval(
-    () => {
-            getTaskByTaskId(pendingTaskId)
-                .then((result:any) => {
-                    const dataJson = result.data
-                    if (dataJson.TaskStatus === "SUCCESS") {
-                        setIsPollingEnabled(false);
-
-                        const taskResponseJson = dataJson.TaskResponse
-                        if (taskResponseJson["success"] === false) {
-                            setIsPollingEnabled(false)
-                            setErrorMessage(`Optimization Task: ${taskResponseJson['errorMessage']}`)
-                        } else {
-                            setOptimizationReportFileName(taskResponseJson['stat_path'])
-                            setLoading(false)
-                        }
+                }
+            }
+        } else {
+            const zip = new JSZip();
+            zip.loadAsync(combinedFiles).then((content) => {
+                for (const contentKey in content.files) {
+                    if (content.files[contentKey].name.endsWith(".bpmn")) {
+                        content.files[contentKey].async('blob').then((fileData) => {
+                            const f = new File([fileData], "model.bpmn")
+                            setBpmnModel(f)
+                        })
                     }
-                    else if (dataJson.TaskStatus === "FAILURE") {
-                        setIsPollingEnabled(false)
-                        setLoading(false)
-
-                        setErrorMessage("Optimization Task failed")
+                    if (content.files[contentKey].name.endsWith(".json")) {
+                        content.files[contentKey].async('blob').then((fileData) => {
+                            if (content.files[contentKey].name.includes("constraints")) {
+                                const f = new File([fileData], content.files[contentKey].name);
+                                setConsParams(f)
+                            } else {
+                                const f = new File([fileData], content.files[contentKey].name);
+                                setSimParams(f)
+                            }
+                        })
                     }
-                })
-                .catch((error: any) => {
-                    setIsPollingEnabled(false)
+                }
+            }).catch((error) => {
+                setErrorMessage(error)
+            });
+        }
 
-                    const errorMessage = error?.response?.data?.displayMessage || "Something went wrong"
-                    setErrorMessage("Task Executing: " + errorMessage)
-                })
-    },
-        isPollingEnabled ? 3000 : null
-    )
-
+    }, [combinedFiles])
 
     const areFilesPresent = () => {
-        // const params_complete = approach !== '' && algorithm !== '' && name !== '' && iterations != 0
         return simParams != null && consParams != null && bpmnModel != null
     }
 
@@ -132,7 +111,6 @@ const Upload = () => {
     const setErrorMessage = (value: string) => {
         updateSnackMessage(value)
         setSnackColor("error")
-        setLoading(false)
     };
 
     const updateSnackMessage = (text: string) => {
@@ -162,12 +140,6 @@ const Upload = () => {
         })
     }
 
-    const handleChange = (event: SelectChangeEvent | any) => {
-        if (event.target.name === 'scenarioName') {
-            setName(event.target.value)
-        }
-    };
-
     return (
         <>
             <Grid container alignItems="center" justifyContent="center" spacing={4} style={{ paddingTop: '30px' }} className="centeredContent">
@@ -189,7 +161,7 @@ const Upload = () => {
                                             </Grid>
                                             <Grid item xs={9}>
                                                 <Typography variant="body1" align="left">
-                                                    bpmn | json
+                                                    bpmn | json | zip
                                                 </Typography>
                                             </Grid>
                                         </Grid>
@@ -197,13 +169,6 @@ const Upload = () => {
                                 </Grid>
                             </Grid>
                             <Grid container sx={{paddingTop: '5%'}}>
-                                <Grid item xs={12} className="centeredContent">
-                                    <Typography variant={'h5'}>Name your scenario</Typography>
-                                    <TextField
-                                        onChange={handleChange}
-                                        name={"scenarioName"}
-                                        sx={{ m:1,minWidth: 250}} id="logname_textfield" label="e.g. John Doe" variant="standard" className="centeredContent"/>
-                                </Grid>
                                 <Grid container sx={{paddingTop: '5%'}}>
                                     <Grid item xs={4}>
                                         <Typography>BPMN Model</Typography>
@@ -227,7 +192,7 @@ const Upload = () => {
                                             setErrorMessage={setErrorMessage}
                                         />
                                     </Grid>
-                                        <Grid item xs={4}>
+                                    <Grid item xs={4}>
                                             <Typography>Constraints Parameters</Typography>
                                             <br/>
                                             <FileUploader
@@ -238,6 +203,9 @@ const Upload = () => {
                                                 setErrorMessage={setErrorMessage}
                                             />
                                         </Grid>
+                                </Grid>
+                                <Grid item sx={{paddingTop: '5%'}} className="centeredContent" xs={12}>
+                                    <FileDropzoneArea acceptedFiles={[".zip", ".json", ".bpmn"]} setSelectedFiles={setCombinedFiles}/>
                                 </Grid>
                             </Grid>
                         </Grid>
