@@ -115,7 +115,6 @@ const ParameterEditor = () => {
                     console.log(error)
                     console.log(error.response)
                     const errorMessage = error?.response?.data?.displayMessage || "Something went wrong"
-                    setErrorMessage("Task Executing: " + errorMessage)
                 })
         },
         isPollingEnabled ? 60000 : null
