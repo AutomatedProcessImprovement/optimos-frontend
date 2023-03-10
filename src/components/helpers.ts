@@ -1,3 +1,5 @@
+import { ConsJsonData } from "../JsonData";
+
 export class Dictionary<T> {
     items: { [key: string]: T } = {}
 
@@ -14,7 +16,7 @@ export class Dictionary<T> {
     }
 
     getValueByKey(key: string) {
-        return  (key in this.items) ? this.items[key] : null
+        return (key in this.items) ? this.items[key] : null
     }
 
     isKeyExisting(key: string) {

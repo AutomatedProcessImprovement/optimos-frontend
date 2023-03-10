@@ -39,6 +39,7 @@ import {getTaskByTaskId, optimize} from "../../api/api";
 import {useInterval} from "usehooks-ts";
 import OptimizationResults from "../dashboard/OptimizationResults";
 import JSZip from "jszip";
+import useSimParamsJsonFile from "./useSimParamsJsonFile";
 
 interface LocationState {
     bpmnFile: File,
@@ -77,6 +78,7 @@ const ParameterEditor = () => {
     const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
 
     const {jsonData} = useJsonFile(consParamsFile)
+    const {jsonData: simParamsData} = useSimParamsJsonFile(simParamsFile)
 
     const {formState} = useFormState(jsonData)
     const {formState: {errors, isValid, isSubmitted, submitCount}, getValues, handleSubmit} = formState
@@ -104,7 +106,6 @@ const ParameterEditor = () => {
             getTaskByTaskId(pendingTaskId)
                 .then((result: any) => {
                     const dataJson = result.data
-                    console.log(dataJson.TaskStatus)
                     if (dataJson.TaskStatus === "STARTED") {
                         setInfoMessage("Optimization still in progress...")
                     }
@@ -125,15 +126,11 @@ const ParameterEditor = () => {
             getTaskByTaskId(pendingTaskId)
                 .then((result: any) => {
                     const dataJson = result.data
-                    console.log(dataJson.TaskStatus)
                     if (dataJson.TaskStatus === "SUCCESS") {
                         setIsPollingEnabled(false)
-                        console.log(dataJson.TaskResponse)
 
-                        // setCurrSimulatedOutput(dataJson.TaskResponse)
                         setOptimizationReportFileName(dataJson.TaskResponse['stat_path'])
                         setOptimizationReportInfo(dataJson.TaskResponse['report'])
-                        console.log(dataJson.TaskResponse)
 
                         // redirect to results step
                         setActiveStep(TABS.SIMULATION_RESULTS)
@@ -196,9 +193,7 @@ const ParameterEditor = () => {
                 />
             case TABS.RESOURCE_CONSTRAINTS:
                 return <RCons
-                    // jsonFormState={formState}
                     setErrorMessage={setErrorMessage}
-
                     formState={formState}
                 />
             case TABS.SIMULATION_RESULTS:
@@ -265,6 +260,16 @@ const ParameterEditor = () => {
         return blob
     };
 
+    const noInvalidOverlap = (): boolean => {
+        const values = getValues() as ConsJsonData
+
+        // TODO -> Comparison with SIM params data and note issues that could have arisen
+        console.log(simParamsData)
+        console.log(values)
+
+        return true
+    };
+
     const getBlobBasedOnExistingInput = (): Blob => {
         const values = getValues() as ConsJsonData
         const blob = fromContentToBlob(values)
@@ -279,9 +284,11 @@ const ParameterEditor = () => {
             return;
         }
         setInfoMessage("Optimization started...")
+        const canContinue = noInvalidOverlap()
         const newBlob = getBlobBasedOnExistingInput()
         const {num_iterations: num_iterations, approach: approach, algorithm: algorithm, scenario_name: scenario_name} = getScenarioValues()
 
+        return
 
         optimize(algorithm, approach, scenario_name, num_iterations,
             simParamsFile, newBlob, bpmnFile)

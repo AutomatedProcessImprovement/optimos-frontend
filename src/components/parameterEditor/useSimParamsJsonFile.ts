@@ -1,8 +1,8 @@
 import {useEffect, useState} from "react";
-import {ConsJsonData} from "../../JsonData";
+import {ConsJsonData, SimJsonData} from "../../JsonData";
 
-const useJsonFile = (jsonFile: any) => {
-    const [jsonData, setJsonData] = useState<ConsJsonData>()
+const useSimParamsJsonFile = (jsonFile: any) => {
+    const [jsonData, setJsonData] = useState<SimJsonData>()
 
     useEffect(() => {
         if (jsonFile !== null && jsonFile !== "") {
@@ -20,4 +20,4 @@ const useJsonFile = (jsonFile: any) => {
     return {jsonData}
 }
 
-export default useJsonFile;
+export default useSimParamsJsonFile;

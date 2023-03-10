@@ -21,7 +21,7 @@ import SnackBar from "../SnackBar";
 import {AlertColor} from "@mui/material/Alert";
 import FileDropzoneArea from "./FileDropzoneArea";
 import JSZip from "jszip";
-
+import useJsonFile from "../parameterEditor/useJsonFile";
 
 const Upload = () => {
     const [loading, setLoading] = useState<boolean>(false);
@@ -34,16 +34,18 @@ const Upload = () => {
     const [snackMessage, setSnackMessage] = useState("");
     const [snackColor, setSnackColor] = useState<AlertColor | undefined>(undefined)
 
-
-
     const navigate = useNavigate()
 
+    const [isValidConstraints, setIsValidConstraints] = useState<boolean>(false)
+    const [isValidSimParams, setIsValidSimParams] = useState<boolean>(false)
 
     useEffect(() => {
         if (combinedFiles === undefined) {
             setSimParams(null)
             setBpmnModel(null)
             setConsParams(null)
+            setIsValidConstraints(false)
+            setIsValidSimParams(false)
             return
         }
         if (combinedFiles instanceof Array<File>) {
@@ -54,8 +56,24 @@ const Upload = () => {
                 if (combinedFiles[combinedFilesKey].name.endsWith(".json")) {
 
                     if (combinedFiles[combinedFilesKey].name.includes("constraints")) {
-                        setConsParams(combinedFiles[combinedFilesKey])
+                        const jsonFileReader = new FileReader();
+                        jsonFileReader.readAsText(combinedFiles[combinedFilesKey], "UTF-8");
+                        jsonFileReader.onload = e => {
+                            if (e.target?.result && typeof e.target?.result === 'string') {
+                                const rawData = JSON.parse(e.target.result);
+                                setIsValidConstraints(rawData.time_var != undefined && rawData.resources != undefined)
+                            }
+                        };
+                        setConsParams(combinedFiles[combinedFilesKey]);
                     } else {
+                        const jsonFileReader = new FileReader();
+                        jsonFileReader.readAsText(combinedFiles[combinedFilesKey], "UTF-8");
+                        jsonFileReader.onload = e => {
+                            if (e.target?.result && typeof e.target?.result === 'string') {
+                                const rawData = JSON.parse(e.target.result);
+                                setIsValidConstraints(rawData.resource_profiles != undefined && rawData.resource_calendars != undefined)
+                            }
+                        };
                         setSimParams(combinedFiles[combinedFilesKey])
                     }
                 }
@@ -74,9 +92,25 @@ const Upload = () => {
                         content.files[contentKey].async('blob').then((fileData) => {
                             if (content.files[contentKey].name.includes("constraints")) {
                                 const f = new File([fileData], content.files[contentKey].name);
+                                const jsonFileReader = new FileReader();
+                                jsonFileReader.readAsText(f, "UTF-8");
+                                jsonFileReader.onload = e => {
+                                    if (e.target?.result && typeof e.target?.result === 'string') {
+                                        const rawData = JSON.parse(e.target.result);
+                                        setIsValidConstraints(rawData.time_var != undefined && rawData.resources != undefined)
+                                    }
+                                };
                                 setConsParams(f)
                             } else {
                                 const f = new File([fileData], content.files[contentKey].name);
+                                const jsonFileReader = new FileReader();
+                                jsonFileReader.readAsText(f, "UTF-8");
+                                jsonFileReader.onload = e => {
+                                    if (e.target?.result && typeof e.target?.result === 'string') {
+                                        const rawData = JSON.parse(e.target.result);
+                                        setIsValidConstraints(rawData.resource_profiles != undefined && rawData.resource_calendars != undefined)
+                                    }
+                                };
                                 setSimParams(f)
                             }
                         })
@@ -117,8 +151,6 @@ const Upload = () => {
         setSnackMessage(text)
     };
 
-
-
     const onSnackbarClose = () => {
         updateSnackMessage("")
     };
@@ -126,7 +158,7 @@ const Upload = () => {
     const handleRequest = async () => {
         setLoading(true)
 
-        if (!areFilesPresent()) {
+        if (!areFilesPresent() && !isValidConstraints && !isValidSimParams) {
             return
         }
         setInfoMessage("Optimization started...")
@@ -212,12 +244,13 @@ const Upload = () => {
                     </Paper>
                     <Grid item xs={12} sx={{paddingTop: '20px'}}>
                         <LoadingButton
-                            disabled={!areFilesPresent()}
+                            disabled={!areFilesPresent() && !isValidConstraints && !isValidSimParams}
                             variant="contained"
                             onClick={handleRequest}
                             loading={loading}
+                            sx={{width: '250px'}}
                         >
-                            Start optimization
+                            Next
                         </LoadingButton>
                     </Grid>
                 </Grid>
