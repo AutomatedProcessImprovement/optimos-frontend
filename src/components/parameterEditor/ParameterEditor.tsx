@@ -40,6 +40,7 @@ import {useInterval} from "usehooks-ts";
 import OptimizationResults from "../dashboard/OptimizationResults";
 import JSZip from "jszip";
 import useSimParamsJsonFile from "./useSimParamsJsonFile";
+import {timePeriodToBinary} from "../helpers";
 
 interface LocationState {
     bpmnFile: File,
@@ -263,11 +264,140 @@ const ParameterEditor = () => {
     const noInvalidOverlap = (): boolean => {
         const values = getValues() as ConsJsonData
 
-        // TODO -> Comparison with SIM params data and note issues that could have arisen
         console.log(simParamsData)
         console.log(values)
 
-        return true
+        if (simParamsData && values) {
+            const sp_tcs = simParamsData['resource_calendars']
+            const cp_ttb = values['resources']
+
+            for (const tKey in sp_tcs) {
+                const key_id = sp_tcs[tKey]['id']
+                const ttb = sp_tcs[tKey]['time_periods']
+
+                let cons_equal
+                for (const cpKey in cp_ttb) {
+                    if (cp_ttb[cpKey].id === key_id) {
+                        cons_equal = cp_ttb[cpKey]
+                    }
+                }
+
+                let monday = 0
+                let tuesday = 0
+                let wednesday = 0
+                let thursday = 0
+                let friday = 0
+                let saturday = 0
+                let sunday = 0
+
+                for (const ttbKey in ttb) {
+                    const fromKey = ttb[ttbKey]['from']
+                    switch (fromKey) {
+                        case "MONDAY":
+                            monday += timePeriodToBinary(ttb[ttbKey]['beginTime'], ttb[ttbKey]['endTime'], values.time_var, 24)
+                            break
+                        case "TUESDAY":
+                            tuesday += timePeriodToBinary(ttb[ttbKey]['beginTime'], ttb[ttbKey]['endTime'], values.time_var, 24)
+                            break
+                        case "WEDNESDAY":
+                            wednesday += timePeriodToBinary(ttb[ttbKey]['beginTime'], ttb[ttbKey]['endTime'], values.time_var, 24)
+                            break
+                        case "THURSDAY":
+                            thursday += timePeriodToBinary(ttb[ttbKey]['beginTime'], ttb[ttbKey]['endTime'], values.time_var, 24)
+                            break
+                        case "FRIDAY":
+                            friday += timePeriodToBinary(ttb[ttbKey]['beginTime'], ttb[ttbKey]['endTime'], values.time_var, 24)
+                            break
+                        case "SATURDAY":
+                            saturday += timePeriodToBinary(ttb[ttbKey]['beginTime'], ttb[ttbKey]['endTime'], values.time_var, 24)
+                            break
+                        case "SUNDAY":
+                            sunday += timePeriodToBinary(ttb[ttbKey]['beginTime'], ttb[ttbKey]['endTime'], values.time_var, 24)
+                            break
+                        default:
+                            console.log("r")
+                    }
+                }
+                // Resource maps have been built, now crosscheck for overlaps with masks
+                let all_ok = [false, false, false, false, false, false, false]
+                let all_ok2 = [false, false, false, false, false, false, false]
+                if (cons_equal) {
+                    // checks for masks
+                    if ((cons_equal.constraints.never_work_masks.monday | cons_equal.constraints.always_work_masks.monday) ==
+                        (cons_equal.constraints.never_work_masks.monday ^ cons_equal.constraints.always_work_masks.monday)) {
+                        all_ok2[0] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.tuesday | cons_equal.constraints.always_work_masks.tuesday) ==
+                        (cons_equal.constraints.never_work_masks.tuesday ^ cons_equal.constraints.always_work_masks.tuesday)) {
+                        all_ok2[1] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.wednesday | cons_equal.constraints.always_work_masks.wednesday) ==
+                        (cons_equal.constraints.never_work_masks.wednesday ^ cons_equal.constraints.always_work_masks.wednesday)) {
+                        all_ok2[2] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.thursday | cons_equal.constraints.always_work_masks.thursday) ==
+                        (cons_equal.constraints.never_work_masks.thursday ^ cons_equal.constraints.always_work_masks.thursday)) {
+                        all_ok2[3] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.friday | cons_equal.constraints.always_work_masks.friday) ==
+                        (cons_equal.constraints.never_work_masks.friday ^ cons_equal.constraints.always_work_masks.friday)) {
+                        all_ok2[4] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.saturday | cons_equal.constraints.always_work_masks.saturday) ==
+                        (cons_equal.constraints.never_work_masks.saturday ^ cons_equal.constraints.always_work_masks.saturday)) {
+                        all_ok2[5] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.sunday | cons_equal.constraints.always_work_masks.sunday) ==
+                        (cons_equal.constraints.never_work_masks.sunday ^ cons_equal.constraints.always_work_masks.sunday)) {
+                        all_ok2[6] = true
+                    }
+
+
+                    // Checks for timetables over masks
+                    if ((cons_equal.constraints.never_work_masks.monday & monday) == 0 &&
+                        ((cons_equal.constraints.always_work_masks.monday & monday) == cons_equal.constraints.always_work_masks.monday)) {
+                        all_ok[0] = true;
+                    }
+                    if ((cons_equal.constraints.never_work_masks.tuesday & tuesday) == 0 &&
+                        ((cons_equal.constraints.always_work_masks.tuesday & tuesday) == cons_equal.constraints.always_work_masks.tuesday)) {
+                        all_ok[1] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.wednesday & wednesday) == 0 &&
+                        ((cons_equal.constraints.always_work_masks.wednesday & wednesday) == cons_equal.constraints.always_work_masks.wednesday)) {
+                        all_ok[2] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.thursday & thursday) == 0 &&
+                        ((cons_equal.constraints.always_work_masks.thursday & thursday) == cons_equal.constraints.always_work_masks.thursday)) {
+                        all_ok[3] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.friday & friday) == 0 &&
+                        ((cons_equal.constraints.always_work_masks.friday & friday) == cons_equal.constraints.always_work_masks.friday)) {
+                        all_ok[4] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.saturday & saturday) == 0 &&
+                        ((cons_equal.constraints.always_work_masks.saturday & saturday) == cons_equal.constraints.always_work_masks.saturday)) {
+                        all_ok[5] = true
+                    }
+                    if ((cons_equal.constraints.never_work_masks.sunday & sunday) == 0 &&
+                        ((cons_equal.constraints.always_work_masks.sunday & sunday) == cons_equal.constraints.always_work_masks.sunday)) {
+                        all_ok[6] = true
+                    }
+                }
+                console.log(all_ok)
+
+                if ( ! all_ok2.every(v => v === true)) {
+                    setErrorMessage("An invalid mask overlap has been found. Check the masks of " + key_id + " before trying again")
+                    return false
+                }
+
+                if ( ! all_ok.every(v => v === true)) {
+                    setErrorMessage("An invalid timetable overlap has been found. Make sure the masks and timetable do no overlap in " + key_id)
+                    return false
+                }
+            }
+            return true
+        }
+        return false
     };
 
     const getBlobBasedOnExistingInput = (): Blob => {
