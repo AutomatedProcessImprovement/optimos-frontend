@@ -413,30 +413,35 @@ const ParameterEditor = () => {
         if (!isValid) {
             return;
         }
-        setInfoMessage("Optimization started...")
+
         const canContinue = noInvalidOverlap()
         const newBlob = getBlobBasedOnExistingInput()
         const {num_iterations: num_iterations, approach: approach, algorithm: algorithm, scenario_name: scenario_name} = getScenarioValues()
 
-        return
+        // return
 
-        optimize(algorithm, approach, scenario_name, num_iterations,
-            simParamsFile, newBlob, bpmnFile)
-            .then(((result) => {
-                const dataJson = result.data
-                console.log(dataJson.TaskId)
-                console.log("in optimize")
+        if (canContinue) {
+            setInfoMessage("Optimization started...")
+            optimize(algorithm, approach, scenario_name, num_iterations,
+                simParamsFile, newBlob, bpmnFile)
+                .then(((result) => {
+                    const dataJson = result.data
+                    console.log(dataJson.TaskId)
+                    console.log("in optimize")
 
-                if (dataJson.TaskId) {
-                    setIsPollingEnabled(true)
-                    setPendingTaskId(dataJson.TaskId)
-                }
+                    if (dataJson.TaskId) {
+                        setIsPollingEnabled(true)
+                        setPendingTaskId(dataJson.TaskId)
+                    }
 
-            }))
-            .catch((error: any) => {
-                console.log(error.response)
-                setErrorMessage(error.response.data.displayMessage)
-            })
+                }))
+                .catch((error: any) => {
+                    console.log(error.response)
+                    setErrorMessage(error.response.data.displayMessage)
+                });
+        }
+
+
     }
 
     return (
