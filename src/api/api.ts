@@ -25,6 +25,18 @@ export const optimize = async (
     )
 }
 
+export const generateConstraints = async (
+    simScenarioFile: Blob | File
+) => {
+    const formData = new FormData()
+    formData.append("simScenarioFile", simScenarioFile as Blob)
+
+    return await axios.post(
+        '/api/generateConstraints',
+        formData
+    )
+}
+
 export const getFileByFileName = async (fileName: string) => {
     return await axios.get(
         `/api/optimizationFile?fileName=${fileName}`

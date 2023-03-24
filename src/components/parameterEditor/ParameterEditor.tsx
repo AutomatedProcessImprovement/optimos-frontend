@@ -383,8 +383,6 @@ const ParameterEditor = () => {
                         all_ok[6] = true
                     }
                 }
-                console.log(all_ok)
-
                 if ( ! all_ok2.every(v => v === true)) {
                     setErrorMessage("An invalid mask overlap has been found. Check the masks of " + key_id + " before trying again")
                     return false

@@ -1,27 +1,22 @@
 import * as React from 'react'
 import {useEffect, useState} from 'react'
 import {
-    FormControl,
+    FormControlLabel,
+    FormGroup,
     Grid,
-    InputLabel,
-    MenuItem,
-    Paper,
-    Select,
-    SelectChangeEvent,
-    TextField,
+    Paper, Switch,
     Typography
 } from "@mui/material";
 import {LoadingButton} from '@mui/lab';
 import FileUploader from "../FileUploader";
-import {getFileByFileName, getTaskByTaskId, optimize} from "../../api/api";
-import {useInterval} from 'usehooks-ts'
 import paths from '../../router/paths';
 import {useNavigate} from "react-router";
 import SnackBar from "../SnackBar";
 import {AlertColor} from "@mui/material/Alert";
 import FileDropzoneArea from "./FileDropzoneArea";
 import JSZip from "jszip";
-import useJsonFile from "../parameterEditor/useJsonFile";
+import {useInterval} from "usehooks-ts";
+import {generateConstraints, getTaskByTaskId} from "../../api/api";
 
 const Upload = () => {
     const [loading, setLoading] = useState<boolean>(false);
@@ -36,8 +31,57 @@ const Upload = () => {
 
     const navigate = useNavigate()
 
+    const [wantGenerateConstraints, setWantGenerateConstraints] = useState<boolean>(false)
+    const [isPollingEnabled, setIsPollingEnabled] = useState(false)
+    const [pendingTaskId, setPendingTaskId] = useState("")
+
+
     const [isValidConstraints, setIsValidConstraints] = useState<boolean>(false)
     const [isValidSimParams, setIsValidSimParams] = useState<boolean>(false)
+
+    useInterval(
+        () => {
+            getTaskByTaskId(pendingTaskId)
+                .then((result: any) => {
+                    const dataJson = result.data
+                    if (dataJson.TaskStatus === "SUCCESS") {
+                        setIsPollingEnabled(false)
+                        console.log(dataJson)
+
+                        const blob = new Blob([JSON.stringify(dataJson.TaskResponse['constraints'])], {type: "application/json"});
+
+                        const consParamsGenerated = new File([blob], "name", { type: "application/json" })
+                        setConsParams(consParamsGenerated)
+
+                        // hide info message
+                        onSnackbarClose()
+
+                        navigate(paths.PARAMEDITOR_PATH, {
+                            state: {
+                                bpmnFile: bpmnModel,
+                                simParamsFile: simParams,
+                                consParamsFile: consParamsGenerated
+                            }
+                        });
+                    }
+                    else if (dataJson.TaskStatus === "FAILURE") {
+                        setIsPollingEnabled(false)
+
+                        console.log(dataJson)
+                        setErrorMessage("An error occurred.")
+                    }
+                })
+                .catch((error: any) => {
+                    setIsPollingEnabled(false)
+
+                    console.log(error)
+                    console.log(error.response)
+                    const errorMessage = error?.response?.data?.displayMessage || "Something went wrong"
+                    setErrorMessage("Task Executing: " + errorMessage)
+                })
+        },
+        isPollingEnabled ? 3000 : null
+    );
 
     useEffect(() => {
         if (combinedFiles === undefined) {
@@ -124,7 +168,12 @@ const Upload = () => {
     }, [combinedFiles])
 
     const areFilesPresent = () => {
-        return simParams != null && consParams != null && bpmnModel != null
+        if (!wantGenerateConstraints) {
+            return simParams != null && consParams != null && bpmnModel != null;
+
+        } else {
+            return simParams != null && bpmnModel != null;
+        }
     }
 
     const onBpmnModelChange = (file: File) => {
@@ -158,18 +207,46 @@ const Upload = () => {
     const handleRequest = async () => {
         setLoading(true)
 
+        if (wantGenerateConstraints) {
+            setInfoMessage("Generating constraints...");
+
+            if (simParams != null) {
+                generateConstraints(simParams)
+                    .then(((result) => {
+                        const dataJson = result.data
+                        console.log(dataJson.TaskId)
+                        console.log("in generate")
+
+                        if (dataJson.TaskId) {
+                            setIsPollingEnabled(true)
+                            setPendingTaskId(dataJson.TaskId)
+                        }
+
+                    }))
+                    .catch((error: any) => {
+                        console.log(error.response)
+                        setErrorMessage(error.response.data.displayMessage)
+                    });
+            }
+        }
         if (!areFilesPresent() && !isValidConstraints && !isValidSimParams) {
             return
         }
-        setInfoMessage("Optimization started...")
 
-        navigate(paths.PARAMEDITOR_PATH, {
-            state: {
-                bpmnFile: bpmnModel,
-                simParamsFile: simParams,
-                consParamsFile: consParams
-            }
-        })
+        if (!wantGenerateConstraints) {
+            navigate(paths.PARAMEDITOR_PATH, {
+                state: {
+                    bpmnFile: bpmnModel,
+                    simParamsFile: simParams,
+                    consParamsFile: consParams
+                }
+            });
+        }
+
+    }
+
+    const handleSwitch = (e: { target: { checked: boolean | ((prevState: boolean) => boolean); }; }) => {
+        setWantGenerateConstraints(e.target.checked)
     }
 
     return (
@@ -180,7 +257,7 @@ const Upload = () => {
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <Typography variant="h4" align="center">
-                                    Upload files
+                                    Run optimization
                                 </Typography>
                                 <br/>
                                 <Grid container>
@@ -201,6 +278,13 @@ const Upload = () => {
                                 </Grid>
                             </Grid>
                             <Grid container sx={{paddingTop: '5%'}}>
+                                <Grid item className="centeredContent" xs={12}>
+                                        <FormControlLabel control={<Switch
+                                            defaultChecked={false}
+                                            onChange={handleSwitch}
+                                        />} label="Generate constraints?" />
+
+                                </Grid>
                                 <Grid container sx={{paddingTop: '5%'}}>
                                     <Grid item xs={4}>
                                         <Typography>BPMN Model</Typography>
@@ -224,7 +308,7 @@ const Upload = () => {
                                             setErrorMessage={setErrorMessage}
                                         />
                                     </Grid>
-                                    <Grid item xs={4}>
+                                    { !wantGenerateConstraints && (<Grid item xs={4}>
                                             <Typography>Constraints Parameters</Typography>
                                             <br/>
                                             <FileUploader
@@ -234,10 +318,10 @@ const Upload = () => {
                                                 onFileChange={onConsParamsChange}
                                                 setErrorMessage={setErrorMessage}
                                             />
-                                        </Grid>
+                                        </Grid>) }
                                 </Grid>
                                 <Grid item sx={{paddingTop: '5%'}} className="centeredContent" xs={12}>
-                                    <FileDropzoneArea acceptedFiles={[".zip", ".json", ".bpmn"]} setSelectedFiles={setCombinedFiles}/>
+                                    <FileDropzoneArea acceptedFiles={[".zip", ".json", ".bpmn"]} setSelectedFiles={setCombinedFiles} filesLimit={3}/>
                                 </Grid>
                             </Grid>
                         </Grid>

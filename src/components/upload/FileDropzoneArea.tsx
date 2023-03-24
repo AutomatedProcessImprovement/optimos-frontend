@@ -6,6 +6,7 @@ import JSZip from 'jszip'
 interface DropzoneAreaProps {
     acceptedFiles: string[];
     setSelectedFiles: (files:any) => void;
+    filesLimit: number
 }
 
 const FileDropzoneArea = (props: DropzoneAreaProps) => {
@@ -26,7 +27,7 @@ const FileDropzoneArea = (props: DropzoneAreaProps) => {
     return <DropzoneArea
         onChange={onChange}
         onDelete={onDelete}
-        filesLimit={3}
+        filesLimit={props.filesLimit}
         showFileNames={true}
         maxFileSize={500000000}
         showPreviews={true}
