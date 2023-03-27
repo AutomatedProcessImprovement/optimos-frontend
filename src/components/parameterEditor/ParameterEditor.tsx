@@ -1,10 +1,11 @@
 import {
+    Badge,
     Button,
     ButtonGroup,
     Grid,
     makeStyles,
     Step,
-    StepButton,
+    StepButton, StepIcon,
     StepLabel,
     Stepper,
     Tooltip,
@@ -23,7 +24,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import useFormState from "./useFormState";
 import useJsonFile from "./useJsonFile";
 import { saveAs } from "file-saver";
-
+import CancelIcon from '@mui/icons-material/Cancel';
 import {AlertColor} from "@mui/material/Alert";
 import BuildIcon from '@mui/icons-material/Build';
 import useTabVisibility, { TABS } from './useTabVisibility';
@@ -80,6 +81,8 @@ const ParameterEditor = () => {
 
     const {jsonData} = useJsonFile(consParamsFile)
     const {jsonData: simParamsData} = useSimParamsJsonFile(simParamsFile)
+    const [isScenarioParamsValid, setIsScenarioParamsValid] = useState(true)
+
 
     const {formState} = useFormState(jsonData)
     const {formState: {errors, isValid, isSubmitted, submitCount}, getValues, handleSubmit} = formState
@@ -101,6 +104,17 @@ const ParameterEditor = () => {
     })
     const { getValues: getScenarioValues, trigger: triggerScenario, formState: { errors: scenarioErrors } } = scenarioState
 
+    // validate both forms: scenario params and json fields
+    useEffect(() => {
+        // isValid doesn't work properly on init
+        const isJsonParamsValid = Object.keys(errors)?.length === 0
+
+        if (!isScenarioParamsValid || !isJsonParamsValid) {
+            console.log(errors)
+            setErrorMessage("There are validation errors")
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSubmitted, submitCount]);
 
     useInterval(
         () => {
@@ -234,10 +248,36 @@ const ParameterEditor = () => {
                 break
             default:
                 return <></>
-
         }
-        return Icon
-    }
+
+        const getBadgeContent = (areAnyErrors: boolean) => {
+            let BadgeIcon: typeof CancelIcon | typeof CheckCircleIcon, color: string
+            if (areAnyErrors) {
+                BadgeIcon = CancelIcon
+                color = errorColor
+            } else {
+                BadgeIcon = CheckCircleIcon
+                color = successColor
+            }
+
+            return (<BadgeIcon style={{ marginRight: "-9px", color: color }} />)
+        }
+
+        const areAnyErrors = currError && (currError.length > 0 || Object.keys(currError)?.length > 0)
+        const finalIcon =
+            (isSubmitted && !lastStep)
+                ? (<Badge
+                        badgeContent={getBadgeContent(areAnyErrors)}
+                        overlap="circular"> {Icon}
+                    </Badge>
+                )
+                : Icon
+
+        return <StepIcon
+            active={isActiveStep}
+            icon={finalIcon}
+        />
+    };
 
     const onDownloadScenarioFilesAsZip = () => {
 
@@ -407,8 +447,13 @@ const ParameterEditor = () => {
 
 
     const onStartOptimization = async () => {
+        const isScenarioValid = await triggerScenario()
+        setIsScenarioParamsValid(isScenarioValid)
 
-        if (!isValid) {
+        if (!isValid || !isScenarioValid) {
+            // scenario params or json params
+            // or values used for prioritisation rules
+            // or all of them are not valid
             return;
         }
 
@@ -458,7 +503,7 @@ const ParameterEditor = () => {
                         <Grid item container xs={3} justifyContent="center">
                             <ButtonGroup>
                                 <Button
-                                    onClick={onStartOptimization}
+                                    onClick={handleSubmit(onStartOptimization)}
                                     // type="submit"
                                 >Start Optimization</Button>
                             </ButtonGroup>
