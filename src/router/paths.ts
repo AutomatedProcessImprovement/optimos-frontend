@@ -5,4 +5,4 @@ const paths = {
     CONSTRAINTS_PATH: "/optimizer/generateupload",
 }
 
-export default paths;
+export default paths

@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
-import {Dictionary} from "../helpers";
+import { useEffect, useState } from "react"
+import { Dictionary } from "../helpers"
 
 export enum TABS {
     GLOBAL_CONSTRAINTS,
     SCENARIO_CONSTRAINTS,
     RESOURCE_CONSTRAINTS,
-    SIMULATION_RESULTS
+    SIMULATION_RESULTS,
 }
 
 const tabsName: { [key: string]: string } = {
     GLOBAL_CONSTRAINTS: "Global Constraints",
-    SCENARIO_CONSTRAINTS:"Scenario Constraints",
+    SCENARIO_CONSTRAINTS: "Scenario Constraints",
     RESOURCE_CONSTRAINTS: "Resource Constraints",
-    SIMULATION_RESULTS: "Simulation Results"
-};
+    SIMULATION_RESULTS: "Simulation Results",
+}
 
 const useTabVisibility = () => {
     const [visibleTabs, setVisibleTabs] = useState(new Dictionary<string>())
@@ -30,18 +30,18 @@ const useTabVisibility = () => {
             return
         }
 
-        const newVisibleTabs = Object.entries(tabsName).reduce((acc: Dictionary<string>, [key, value]: any) => {
-            acc.add(key, value)
-            return acc
-        }, new Dictionary<string>())
+        const newVisibleTabs = Object.entries(tabsName).reduce(
+            (acc: Dictionary<string>, [key, value]: any) => {
+                acc.add(key, value)
+                return acc
+            },
+            new Dictionary<string>()
+        )
 
         setVisibleTabs(newVisibleTabs)
     }, [visibleTabs])
 
-
     return { visibleTabs, getIndexOfTab }
 }
 
-export default useTabVisibility;
-
-
+export default useTabVisibility

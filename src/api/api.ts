@@ -1,8 +1,12 @@
-import axios from '../axios'
+import axios from "../axios"
 
 export const optimize = async (
-    algorithm: string, approach: string, logName: string, total_iterations: number,
-    simScenarioFile: Blob | File, constraintsFile: Blob | File,
+    algorithm: string,
+    approach: string,
+    logName: string,
+    total_iterations: number,
+    simScenarioFile: Blob | File,
+    constraintsFile: Blob | File,
     modelFile: Blob | File
 ) => {
     const formData = new FormData()
@@ -16,35 +20,23 @@ export const optimize = async (
 
     // Display the key/value pairs
     for (var pair of formData.entries()) {
-        console.log(pair[0]+ ', ' + pair[1]);
+        console.log(pair[0] + ", " + pair[1])
     }
 
-    return await axios.post(
-        '/api/optimize',
-        formData
-    )
+    return await axios.post("/api/optimize", formData)
 }
 
-export const generateConstraints = async (
-    simScenarioFile: Blob | File
-) => {
+export const generateConstraints = async (simScenarioFile: Blob | File) => {
     const formData = new FormData()
     formData.append("simScenarioFile", simScenarioFile as Blob)
 
-    return await axios.post(
-        '/api/generateConstraints',
-        formData
-    )
+    return await axios.post("/api/generateConstraints", formData)
 }
 
 export const getFileByFileName = async (fileName: string) => {
-    return await axios.get(
-        `/api/optimizationFile?fileName=${fileName}`
-    )
-};
+    return await axios.get(`/api/optimizationFile?fileName=${fileName}`)
+}
 
 export const getTaskByTaskId = async (taskId: string) => {
-    return await axios.get(
-        `/api/task?taskId=${taskId}`
-    )
-};
+    return await axios.get(`/api/task?taskId=${taskId}`)
+}

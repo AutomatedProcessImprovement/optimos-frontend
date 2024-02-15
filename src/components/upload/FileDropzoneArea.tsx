@@ -1,11 +1,11 @@
-import React, {Component, useEffect, useState} from "react";
-import { DropzoneArea } from "mui-file-dropzone";
-import {makeStyles} from "@mui/material";
-import JSZip from 'jszip'
+import React, { Component, useEffect, useState } from "react"
+import { DropzoneArea } from "mui-file-dropzone"
+import { makeStyles } from "@mui/material"
+import JSZip from "jszip"
 
 interface DropzoneAreaProps {
-    acceptedFiles: string[];
-    setSelectedFiles: (files:any) => void;
+    acceptedFiles: string[]
+    setSelectedFiles: (files: any) => void
     filesLimit: number
 }
 
@@ -14,36 +14,34 @@ const FileDropzoneArea = (props: DropzoneAreaProps) => {
 
     const onChange = (_files: File[]) => {
         if (_files.length === 1 && _files[0].name.endsWith(".zip")) {
-            setSelectedFiles(_files[0]);
+            setSelectedFiles(_files[0])
         } else {
-            setSelectedFiles(_files);
+            setSelectedFiles(_files)
         }
     }
     const onDelete = (_files: File) => {
         setSelectedFiles(undefined)
     }
 
-
-    return <DropzoneArea
-        onChange={onChange}
-        onDelete={onDelete}
-        filesLimit={props.filesLimit}
-        showFileNames={true}
-        maxFileSize={500000000}
-        showPreviews={true}
-        previewText={"Uploaded files:"}
-        showPreviewsInDropzone={false}
-        showFileNamesInPreview={true}
-        useChipsForPreview={true}
-        showAlerts={false}
-        clearOnUnmount={true}
-        disableRejectionFeedback={true}
-        acceptedFiles={acceptedFiles}
-        fileObjects={setSelectedFiles}
-
-    />
-
-
+    return (
+        <DropzoneArea
+            onChange={onChange}
+            onDelete={onDelete}
+            filesLimit={props.filesLimit}
+            showFileNames={true}
+            maxFileSize={500000000}
+            showPreviews={true}
+            previewText={"Uploaded files:"}
+            showPreviewsInDropzone={false}
+            showFileNamesInPreview={true}
+            useChipsForPreview={true}
+            showAlerts={false}
+            clearOnUnmount={true}
+            disableRejectionFeedback={true}
+            acceptedFiles={acceptedFiles}
+            fileObjects={setSelectedFiles}
+        />
+    )
 }
 
-export default FileDropzoneArea;
+export default FileDropzoneArea

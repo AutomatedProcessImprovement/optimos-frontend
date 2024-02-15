@@ -1,5 +1,5 @@
-import { ConsJsonData } from "../JsonData";
-import moment from "moment";
+import { ConsJsonData } from "../JsonData"
+import moment from "moment"
 
 export class Dictionary<T> {
     items: { [key: string]: T } = {}
@@ -13,11 +13,11 @@ export class Dictionary<T> {
     }
 
     isEmpty() {
-        return Object.keys(this.items).length === 0;
+        return Object.keys(this.items).length === 0
     }
 
     getValueByKey(key: string) {
-        return (key in this.items) ? this.items[key] : null
+        return key in this.items ? this.items[key] : null
     }
 
     isKeyExisting(key: string) {
@@ -33,22 +33,27 @@ export class Dictionary<T> {
     }
 }
 
-export const timePeriodToBinary = (startTime: string, endTime: string, delta: number, num_slots: number) => {
-    const start_of_day =  moment(new Date('1970-01-01T00:00:00'));
-    const tp_start = moment(new Date("1970-01-01T" + startTime));
-    const tp_end = moment(new Date("1970-01-01T" + endTime));
+export const timePeriodToBinary = (
+    startTime: string,
+    endTime: string,
+    delta: number,
+    num_slots: number
+) => {
+    const start_of_day = moment(new Date("1970-01-01T00:00:00"))
+    const tp_start = moment(new Date("1970-01-01T" + startTime))
+    const tp_end = moment(new Date("1970-01-01T" + endTime))
 
-    let res = ''
+    let res = ""
 
-    let current = start_of_day;
+    let current = start_of_day
     for (let i = 0; i < num_slots; i++) {
-        if (current.isBetween(tp_start, tp_end, 'minute','()')) {
-            res += '1';
+        if (current.isBetween(tp_start, tp_end, "minute", "()")) {
+            res += "1"
         } else {
-            res += '0'
+            res += "0"
         }
-        current.add(delta, 'minutes')
+        current.add(delta, "minutes")
         // console.log(current.format('hh:mm:ss'))
     }
-    return parseInt( res, 2 );
+    return parseInt(res, 2)
 }

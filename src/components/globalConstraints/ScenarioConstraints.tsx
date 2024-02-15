@@ -1,31 +1,42 @@
-import {Controller, useFieldArray, UseFormReturn} from "react-hook-form";
-import {ConsJsonData, ScenarioProperties} from "../../JsonData";
-import {Card, Grid, InputLabel, MenuItem, Select, TextField} from "@mui/material";
-import Typography from "@mui/material/Typography";
-import {REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG} from "../validationMessages";
-import * as React from "react";
-import {useState} from "react";
+import { Controller, useFieldArray, UseFormReturn } from "react-hook-form"
+import { ConsJsonData, ScenarioProperties } from "../../JsonData"
+import {
+    Card,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Select,
+    TextField,
+} from "@mui/material"
+import Typography from "@mui/material/Typography"
+import {
+    REQUIRED_ERROR_MSG,
+    SHOULD_BE_GREATER_0_MSG,
+} from "../validationMessages"
+import * as React from "react"
+import { useState } from "react"
 
 interface ScenarioConstraintsProps {
-    scenarioFormState: UseFormReturn<ScenarioProperties,object>
+    scenarioFormState: UseFormReturn<ScenarioProperties, object>
     jsonFormState: UseFormReturn<ConsJsonData, object>
     setErrorMessage: (value: string) => void
 }
 
-
 const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
-    const { control: consFormControl, formState: {errors} } = props.jsonFormState
+    const {
+        control: consFormControl,
+        formState: { errors },
+    } = props.jsonFormState
     const [timevar, setTimevar] = useState<number>(60)
 
     return (
         <>
-            <Card elevation={5} sx={{ p: 2, width:"100%" }}>
+            <Card elevation={5} sx={{ p: 2, width: "100%" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
                         <Typography variant="h6" align="left">
                             Global scenario constraints
                         </Typography>
-
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <Controller
@@ -33,7 +44,10 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                             control={consFormControl}
                             rules={{
                                 required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                min: {
+                                    value: 1,
+                                    message: SHOULD_BE_GREATER_0_MSG,
+                                },
                             }}
                             render={({ field: { onChange, value } }) => (
                                 <TextField
@@ -61,7 +75,10 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                             control={consFormControl}
                             rules={{
                                 required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                min: {
+                                    value: 1,
+                                    message: SHOULD_BE_GREATER_0_MSG,
+                                },
                             }}
                             render={({ field: { onChange, value } }) => (
                                 <TextField
@@ -74,10 +91,12 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                                     inputProps={{
                                         step: "1",
                                         min: "1",
-                                        max: 1440 / timevar
+                                        max: 1440 / timevar,
                                     }}
                                     error={errors?.max_shift_size !== undefined}
-                                    helperText={errors?.max_shift_size?.message || ""}
+                                    helperText={
+                                        errors?.max_shift_size?.message || ""
+                                    }
                                     variant="standard"
                                     style={{ width: "50%" }}
                                 />
@@ -90,7 +109,10 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                             control={consFormControl}
                             rules={{
                                 required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                min: {
+                                    value: 1,
+                                    message: SHOULD_BE_GREATER_0_MSG,
+                                },
                             }}
                             render={({ field: { onChange, value } }) => (
                                 <TextField
@@ -103,10 +125,14 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                                     inputProps={{
                                         step: "1",
                                         min: "1",
-                                        max: 1440 / timevar
+                                        max: 1440 / timevar,
                                     }}
-                                    error={errors?.max_shift_blocks !== undefined}
-                                    helperText={errors?.max_shift_blocks?.message || ""}
+                                    error={
+                                        errors?.max_shift_blocks !== undefined
+                                    }
+                                    helperText={
+                                        errors?.max_shift_blocks?.message || ""
+                                    }
                                     variant="standard"
                                     style={{ width: "50%" }}
                                 />
@@ -119,7 +145,10 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                             control={consFormControl}
                             rules={{
                                 required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                min: {
+                                    value: 1,
+                                    message: SHOULD_BE_GREATER_0_MSG,
+                                },
                             }}
                             render={({ field: { onChange, value } }) => (
                                 <TextField
@@ -134,7 +163,9 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                                         min: "1",
                                     }}
                                     error={errors?.hours_in_day !== undefined}
-                                    helperText={errors?.hours_in_day?.message || ""}
+                                    helperText={
+                                        errors?.hours_in_day?.message || ""
+                                    }
                                     variant="standard"
                                     style={{ width: "50%" }}
                                 />
@@ -147,32 +178,41 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                             control={consFormControl}
                             rules={{
                                 required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                min: {
+                                    value: 1,
+                                    message: SHOULD_BE_GREATER_0_MSG,
+                                },
                             }}
                             render={({ field: { onChange, value } }) => (
                                 <>
-                                <InputLabel id={"algorithm-select-label"}>Time Granularity</InputLabel>
-                                <Select
-                                    required={true}
-                                    name={"algorithm"}
-                                    sx={{minWidth: 250}}
-                                    labelId="algorithm-select-label"
-                                    id="approach-select"
-                                    value={value}
-                                    label="Algorithm"
-                                    onChange={(e) => {
-                                        onChange(String(e.target.value))
-                                        setTimevar(Number(e.target.value))
-
-                                }}
-                                    style={{ width: "50%" }}
-                                error={errors?.time_var !== undefined}
-                                variant="standard"
-                                >
-                                    <MenuItem disabled value={"15"}>15</MenuItem>
-                                    <MenuItem disabled value={"30"}>30</MenuItem>
-                                    <MenuItem value={"60"}>60</MenuItem>
-                                </Select></>
+                                    <InputLabel id={"algorithm-select-label"}>
+                                        Time Granularity
+                                    </InputLabel>
+                                    <Select
+                                        required={true}
+                                        name={"algorithm"}
+                                        sx={{ minWidth: 250 }}
+                                        labelId="algorithm-select-label"
+                                        id="approach-select"
+                                        value={value}
+                                        label="Algorithm"
+                                        onChange={(e) => {
+                                            onChange(String(e.target.value))
+                                            setTimevar(Number(e.target.value))
+                                        }}
+                                        style={{ width: "50%" }}
+                                        error={errors?.time_var !== undefined}
+                                        variant="standard"
+                                    >
+                                        <MenuItem disabled value={"15"}>
+                                            15
+                                        </MenuItem>
+                                        <MenuItem disabled value={"30"}>
+                                            30
+                                        </MenuItem>
+                                        <MenuItem value={"60"}>60</MenuItem>
+                                    </Select>
+                                </>
                             )}
                         />
                     </Grid>
@@ -181,6 +221,5 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
         </>
     )
 }
-
 
 export default ScenarioConstraints

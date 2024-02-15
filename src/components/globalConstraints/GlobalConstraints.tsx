@@ -1,28 +1,42 @@
-import {Controller, useFieldArray, UseFormReturn} from "react-hook-form";
-import {ConsJsonData, ScenarioProperties} from "../../JsonData";
-import {Card, Grid, InputLabel, MenuItem, Select, TextField} from "@mui/material";
-import Typography from "@mui/material/Typography";
-import {REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG} from "../validationMessages";
-import * as React from "react";
+import { Controller, useFieldArray, UseFormReturn } from "react-hook-form"
+import { ConsJsonData, ScenarioProperties } from "../../JsonData"
+import {
+    Card,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Select,
+    TextField,
+} from "@mui/material"
+import Typography from "@mui/material/Typography"
+import {
+    REQUIRED_ERROR_MSG,
+    SHOULD_BE_GREATER_0_MSG,
+} from "../validationMessages"
+import * as React from "react"
 
 interface GlobalConstraintsProps {
-    scenarioFormState: UseFormReturn<ScenarioProperties,object>
+    scenarioFormState: UseFormReturn<ScenarioProperties, object>
     jsonFormState: UseFormReturn<ConsJsonData, object>
     setErrorMessage: (value: string) => void
 }
 
-
 const GlobalConstraints = (props: GlobalConstraintsProps) => {
     const {
-        scenarioFormState: {control: scenarioFormControl, formState: {errors: scenarioErrors}},
-        jsonFormState: { control: consFormControl, formState: {errors: consErrors} },
-        setErrorMessage
+        scenarioFormState: {
+            control: scenarioFormControl,
+            formState: { errors: scenarioErrors },
+        },
+        jsonFormState: {
+            control: consFormControl,
+            formState: { errors: consErrors },
+        },
+        setErrorMessage,
     } = props
-
 
     return (
         <>
-            <Card elevation={5} sx={{ p: 2, mb:3, width:"100%" }}>
+            <Card elevation={5} sx={{ p: 2, mb: 3, width: "100%" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
                         <Typography variant="h6" align="left">
@@ -44,8 +58,14 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                                     onChange={(e) => {
                                         onChange(e.target.value)
                                     }}
-                                    error={scenarioErrors?.scenario_name !== undefined}
-                                    helperText={scenarioErrors?.scenario_name?.message || ""}
+                                    error={
+                                        scenarioErrors?.scenario_name !==
+                                        undefined
+                                    }
+                                    helperText={
+                                        scenarioErrors?.scenario_name
+                                            ?.message || ""
+                                    }
                                     variant="standard"
                                     style={{ width: "75%" }}
                                 />
@@ -61,11 +81,13 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                             }}
                             render={({ field: { onChange, value } }) => (
                                 <>
-                                    <InputLabel id={"algorithm-select-label"}>Algorithm</InputLabel>
+                                    <InputLabel id={"algorithm-select-label"}>
+                                        Algorithm
+                                    </InputLabel>
                                     <Select
                                         required={true}
                                         name={"algorithm"}
-                                        sx={{minWidth: 250}}
+                                        sx={{ minWidth: 250 }}
                                         labelId="algorithm-select-label"
                                         id="approach-select"
                                         value={value}
@@ -73,14 +95,26 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                                         onChange={(e) => {
                                             onChange(String(e.target.value))
                                         }}
-                                        error={scenarioErrors?.algorithm !== undefined}
+                                        error={
+                                            scenarioErrors?.algorithm !==
+                                            undefined
+                                        }
                                         variant="standard"
                                     >
-                                    <MenuItem value={"HC-STRICT"}>HC-STRICT | Hill Climb strict</MenuItem>
-                                    <MenuItem value={"HC-FLEX"}>HC-FLEX | Hill Climb flex</MenuItem>
-                                    <MenuItem value={"TS"}>TS | Tabu search </MenuItem>
-                                    <MenuItem value={"ALL"}>ALL | All algorithms </MenuItem>
-                                </Select></>
+                                        <MenuItem value={"HC-STRICT"}>
+                                            HC-STRICT | Hill Climb strict
+                                        </MenuItem>
+                                        <MenuItem value={"HC-FLEX"}>
+                                            HC-FLEX | Hill Climb flex
+                                        </MenuItem>
+                                        <MenuItem value={"TS"}>
+                                            TS | Tabu search{" "}
+                                        </MenuItem>
+                                        <MenuItem value={"ALL"}>
+                                            ALL | All algorithms{" "}
+                                        </MenuItem>
+                                    </Select>
+                                </>
                             )}
                         />
                     </Grid>
@@ -90,7 +124,10 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                             control={scenarioFormControl}
                             rules={{
                                 required: REQUIRED_ERROR_MSG,
-                                min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                min: {
+                                    value: 1,
+                                    message: SHOULD_BE_GREATER_0_MSG,
+                                },
                             }}
                             render={({ field: { onChange, value } }) => (
                                 <TextField
@@ -104,8 +141,14 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                                         step: "1",
                                         min: "1",
                                     }}
-                                    error={scenarioErrors?.num_iterations !== undefined}
-                                    helperText={scenarioErrors?.num_iterations?.message || ""}
+                                    error={
+                                        scenarioErrors?.num_iterations !==
+                                        undefined
+                                    }
+                                    helperText={
+                                        scenarioErrors?.num_iterations
+                                            ?.message || ""
+                                    }
                                     variant="standard"
                                     style={{ width: "75%" }}
                                 />
@@ -121,10 +164,12 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                             }}
                             render={({ field: { onChange, value } }) => (
                                 <>
-                                    <InputLabel id="approach-select-label">Approach</InputLabel>
+                                    <InputLabel id="approach-select-label">
+                                        Approach
+                                    </InputLabel>
                                     <Select
                                         required={true}
-                                        sx={{minWidth: 250}}
+                                        sx={{ minWidth: 250 }}
                                         labelId="approach-select-label"
                                         id="approach-select"
                                         value={value}
@@ -133,29 +178,39 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                                         onChange={(e) => {
                                             onChange(String(e.target.value))
                                         }}
-                                        error={scenarioErrors?.num_iterations !== undefined}
+                                        error={
+                                            scenarioErrors?.num_iterations !==
+                                            undefined
+                                        }
                                         variant="standard"
                                     >
-                                        <MenuItem value={"CA"}>CA | Calendar Only</MenuItem>
-                                        <MenuItem value={"AR"}>AR | Add/Remove Only</MenuItem>
-                                        <MenuItem value={"CO"}>CO | CA/AR combined </MenuItem>
-                                        <MenuItem value={"CAAR"}>CAAR | First CA then AR </MenuItem>
-                                        <MenuItem value={"ARCA"}>ARCA | First AR then CA </MenuItem>
-                                        <MenuItem value={"ALL"}>ALL | All approaches </MenuItem>
+                                        <MenuItem value={"CA"}>
+                                            CA | Calendar Only
+                                        </MenuItem>
+                                        <MenuItem value={"AR"}>
+                                            AR | Add/Remove Only
+                                        </MenuItem>
+                                        <MenuItem value={"CO"}>
+                                            CO | CA/AR combined{" "}
+                                        </MenuItem>
+                                        <MenuItem value={"CAAR"}>
+                                            CAAR | First CA then AR{" "}
+                                        </MenuItem>
+                                        <MenuItem value={"ARCA"}>
+                                            ARCA | First AR then CA{" "}
+                                        </MenuItem>
+                                        <MenuItem value={"ALL"}>
+                                            ALL | All approaches{" "}
+                                        </MenuItem>
                                     </Select>
                                 </>
-
-
                             )}
                         />
                     </Grid>
-
                 </Grid>
             </Card>
-
         </>
     )
 }
-
 
 export default GlobalConstraints

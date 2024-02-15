@@ -1,10 +1,22 @@
-import {Card, FormControlLabel, Grid, InputLabel, MenuItem, Switch, TextField, Typography} from "@mui/material"
+import {
+    Card,
+    FormControlLabel,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Switch,
+    TextField,
+    Typography,
+} from "@mui/material"
 import { useState, useEffect } from "react"
-import {Controller, useFieldArray, UseFormReturn} from "react-hook-form"
-import { ConsJsonData } from '../../JsonData'
-import {MIN_LENGTH_REQUIRED_MSG, REQUIRED_ERROR_MSG, SHOULD_BE_GREATER_0_MSG} from '../validationMessages'
-import * as React from "react";
-
+import { Controller, useFieldArray, UseFormReturn } from "react-hook-form"
+import { ConsJsonData } from "../../JsonData"
+import {
+    MIN_LENGTH_REQUIRED_MSG,
+    REQUIRED_ERROR_MSG,
+    SHOULD_BE_GREATER_0_MSG,
+} from "../validationMessages"
+import * as React from "react"
 
 interface ResourceCalendarsProps {
     formState: UseFormReturn<ConsJsonData, object>
@@ -12,15 +24,22 @@ interface ResourceCalendarsProps {
 }
 
 const ResourceConstraints = (props: ResourceCalendarsProps) => {
-    const { formState: { control: formControl, getValues }, formState, setErrorMessage } = props
+    const {
+        formState: { control: formControl, getValues },
+        formState,
+        setErrorMessage,
+    } = props
     const [currCalendarIndex, setCurrCalendarIndex] = useState<number>()
     const [currCalendarKey, setCurrCalendarKey] = useState<string>("")
 
-
-    const { fields: allCalendars, prepend, remove } = useFieldArray({
-        keyName: 'key',
+    const {
+        fields: allCalendars,
+        prepend,
+        remove,
+    } = useFieldArray({
+        keyName: "key",
         control: formControl,
-        name: "resources"
+        name: "resources",
     })
 
     useEffect(() => {
@@ -67,30 +86,33 @@ const ResourceConstraints = (props: ResourceCalendarsProps) => {
                             sx={{ width: "100%" }}
                             label="Resource"
                             variant="standard"
-                            value={currCalendarIndex ?? ''}
+                            value={currCalendarIndex ?? ""}
                             onChange={handleCalendarSelectChange}
                             select
                         >
                             {allCalendars.map((item, index) => {
                                 const { key } = item
-                                return <MenuItem
-                                    key={`calendar_select_${key}`}
-                                    value={index}
-                                >
-                                    {item.id}
-                                </MenuItem>
+                                return (
+                                    <MenuItem
+                                        key={`calendar_select_${key}`}
+                                        value={index}
+                                    >
+                                        {item.id}
+                                    </MenuItem>
+                                )
                             })}
                         </TextField>
                     </Grid>
                 </Grid>
             </Grid>
-            {(currCalendarIndex === undefined)
-                ? <Grid item xs={12} sx={{ p: 2 }}>
+            {currCalendarIndex === undefined ? (
+                <Grid item xs={12} sx={{ p: 2 }}>
                     <Typography>
                         Please select the resource to see its configuration
                     </Typography>
                 </Grid>
-                : <Grid item xs={12} sx={{ p: 2 }}>
+            ) : (
+                <Grid item xs={12} sx={{ p: 2 }}>
                     <ResourceConstraintsList
                         key={`resource_calendars.${currCalendarKey}`}
                         formState={formState}
@@ -99,8 +121,7 @@ const ResourceConstraints = (props: ResourceCalendarsProps) => {
                         calendarKey={currCalendarKey}
                     />
                 </Grid>
-            }
-
+            )}
         </Grid>
     )
 }
@@ -112,7 +133,7 @@ interface RConsGlobalProps extends ResourceCalendarsProps {
 
 const ResourceConstraintsList = (props: RConsGlobalProps) => {
     const { formState, calendarIndex, calendarKey } = props
-    const {control} = formState
+    const { control } = formState
     const [index, setIndex] = useState<number>(calendarIndex)
 
     useEffect(() => {
@@ -124,7 +145,7 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
     return (
         <Grid container spacing={3}>
             <Grid item xs={12}>
-                <Card elevation={5} sx={{ p: 2}}>
+                <Card elevation={5} sx={{ p: 2 }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="h6" align="left">
@@ -137,7 +158,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -165,7 +189,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -194,7 +221,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -222,7 +252,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -250,7 +283,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -278,21 +314,31 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <>
-
-                                        <FormControlLabel control={<Switch
-                                            checked={value}
-                                            onChange={(e) => {
-                                                onChange(Boolean(e.target.checked))
-                                            }}
-                                            // error={errors?.max_shift_blocks !== undefined}
-                                            // helperText={errors?.max_shift_blocks?.message || ""}
-                                        />} label={"Human resource?"}/></>
-
-
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={value}
+                                                    onChange={(e) => {
+                                                        onChange(
+                                                            Boolean(
+                                                                e.target.checked
+                                                            )
+                                                        )
+                                                    }}
+                                                    // error={errors?.max_shift_blocks !== undefined}
+                                                    // helperText={errors?.max_shift_blocks?.message || ""}
+                                                />
+                                            }
+                                            label={"Human resource?"}
+                                        />
+                                    </>
                                 )}
                             />
                         </Grid>
@@ -300,7 +346,7 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                 </Card>
             </Grid>
             <Grid item xs={6}>
-                <Card elevation={5} sx={{ p: 2}}>
+                <Card elevation={5} sx={{ p: 2 }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="h6" align="left">
@@ -313,7 +359,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -341,7 +390,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -369,7 +421,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -397,7 +452,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -425,7 +483,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -453,7 +514,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -481,7 +545,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -507,7 +574,7 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                 </Card>
             </Grid>
             <Grid item xs={6}>
-                <Card elevation={5} sx={{ p: 2}}>
+                <Card elevation={5} sx={{ p: 2 }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="h6" align="left">
@@ -520,7 +587,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -548,7 +618,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -576,7 +649,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -604,7 +680,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -632,7 +711,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -660,7 +742,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -688,7 +773,10 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 control={control}
                                 rules={{
                                     required: REQUIRED_ERROR_MSG,
-                                    min: { value: 1, message: SHOULD_BE_GREATER_0_MSG }
+                                    min: {
+                                        value: 1,
+                                        message: SHOULD_BE_GREATER_0_MSG,
+                                    },
                                 }}
                                 render={({ field: { onChange, value } }) => (
                                     <TextField
@@ -715,9 +803,6 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
             </Grid>
         </Grid>
     )
-
-
 }
 
-
-export default ResourceConstraints;
+export default ResourceConstraints

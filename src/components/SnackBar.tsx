@@ -1,14 +1,13 @@
-import * as React from 'react';
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert, { AlertColor, AlertProps } from '@mui/material/Alert';
-import { useEffect, useState } from 'react';
+import * as React from "react"
+import Snackbar from "@mui/material/Snackbar"
+import MuiAlert, { AlertColor, AlertProps } from "@mui/material/Alert"
+import { useEffect, useState } from "react"
 
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
-    props,
-    ref,
-) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
+    function Alert(props, ref) {
+        return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
+    }
+)
 
 interface SnackBarProps {
     message: string
@@ -30,27 +29,34 @@ const SnackBar = (props: SnackBarProps) => {
 
     useEffect(() => {
         if (alertMessage !== message) {
-            setOpen(message !== "");
+            setOpen(message !== "")
             setAlertMessage(message)
         }
     }, [message, alertMessage])
 
-    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') {
+    const handleClose = (
+        event?: React.SyntheticEvent | Event,
+        reason?: string
+    ) => {
+        if (reason === "clickaway") {
             return
         }
 
         setOpen(false)
         onSnackbarClose()
-    };
+    }
 
     return (
         <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
-            <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
+            <Alert
+                onClose={handleClose}
+                severity={severity}
+                sx={{ width: "100%" }}
+            >
                 {alertMessage}
             </Alert>
         </Snackbar>
-    );
+    )
 }
 
-export default SnackBar;
+export default SnackBar
