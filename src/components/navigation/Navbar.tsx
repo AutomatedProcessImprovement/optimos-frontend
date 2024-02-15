@@ -11,7 +11,7 @@ interface MenuOptions {
     to: string
 }
 
-const menuOptions: Array<MenuOptions> = [
+const menuOptions: MenuOptions[] = [
     { title: "Online Schedule Optimizer", to: "/optimizer/upload" },
 ]
 

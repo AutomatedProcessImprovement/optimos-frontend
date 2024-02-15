@@ -1,7 +1,6 @@
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import { Grid, Input, Button } from "@mui/material"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
-import { useEffect } from "react"
 
 interface FileUploaderProps {
     file: File | null
@@ -23,7 +22,6 @@ const FileUploader = (props: FileUploaderProps) => {
                 inputRef.current.value = ""
             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.file])
 
     const onFileChange = (event: any) => {
@@ -73,7 +71,7 @@ const FileUploader = (props: FileUploaderProps) => {
             </Grid>
             {selectedFile !== null && selectedFile !== undefined && (
                 <Grid item xs={12} className="centeredContent">
-                    <p>Uploaded file: {selectedFile && selectedFile.name}</p>
+                    <p>Uploaded file: {selectedFile?.name}</p>
                 </Grid>
             )}
         </Grid>

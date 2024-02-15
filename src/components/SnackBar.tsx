@@ -1,6 +1,6 @@
 import * as React from "react"
 import Snackbar from "@mui/material/Snackbar"
-import MuiAlert, { AlertColor, AlertProps } from "@mui/material/Alert"
+import MuiAlert, { type AlertColor, type AlertProps } from "@mui/material/Alert"
 import { useEffect, useState } from "react"
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
@@ -19,7 +19,7 @@ const SnackBar = (props: SnackBarProps) => {
     const { message, onSnackbarClose, severityLevel } = props
     const [open, setOpen] = useState(message !== "")
     const [alertMessage, setAlertMessage] = useState(message)
-    const [severity, setSeverity] = useState(severityLevel || "error")
+    const [severity, setSeverity] = useState(severityLevel ?? "error")
 
     useEffect(() => {
         if (severityLevel && severityLevel !== severity) {

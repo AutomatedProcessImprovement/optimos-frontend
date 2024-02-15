@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { ConsJsonData, SimJsonData } from "../../JsonData"
+import { type SimJsonData } from "../../JsonData"
 
 const useSimParamsJsonFile = (jsonFile: any) => {
     const [jsonData, setJsonData] = useState<SimJsonData>()

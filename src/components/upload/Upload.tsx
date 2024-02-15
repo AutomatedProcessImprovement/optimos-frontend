@@ -1,8 +1,6 @@
-import * as React from "react"
 import { useEffect, useState } from "react"
 import {
     FormControlLabel,
-    FormGroup,
     Grid,
     Paper,
     Switch,
@@ -13,7 +11,7 @@ import FileUploader from "../FileUploader"
 import paths from "../../router/paths"
 import { useNavigate } from "react-router"
 import SnackBar from "../SnackBar"
-import { AlertColor } from "@mui/material/Alert"
+import { type AlertColor } from "@mui/material/Alert"
 import FileDropzoneArea from "./FileDropzoneArea"
 import JSZip from "jszip"
 import { useInterval } from "usehooks-ts"
@@ -52,11 +50,7 @@ const Upload = () => {
                         console.log(dataJson)
 
                         const blob = new Blob(
-                            [
-                                JSON.stringify(
-                                    dataJson.TaskResponse["constraints"]
-                                ),
-                            ],
+                            [JSON.stringify(dataJson.TaskResponse.constraints)],
                             { type: "application/json" }
                         )
 
@@ -97,152 +91,125 @@ const Upload = () => {
     )
 
     useEffect(() => {
-        if (combinedFiles === undefined) {
-            setSimParams(null)
-            setBpmnModel(null)
-            setConsParams(null)
-            setIsValidConstraints(false)
-            setIsValidSimParams(false)
-            return
-        }
-        if (combinedFiles instanceof Array<File>) {
-            for (const combinedFilesKey in combinedFiles) {
-                if (combinedFiles[combinedFilesKey].name.endsWith(".bpmn")) {
-                    setBpmnModel(combinedFiles[combinedFilesKey])
-                }
-                if (combinedFiles[combinedFilesKey].name.endsWith(".json")) {
-                    if (
-                        combinedFiles[combinedFilesKey].name.includes(
-                            "constraints"
-                        )
-                    ) {
-                        const jsonFileReader = new FileReader()
-                        jsonFileReader.readAsText(
-                            combinedFiles[combinedFilesKey],
-                            "UTF-8"
-                        )
-                        jsonFileReader.onload = (e) => {
-                            if (
-                                e.target?.result &&
-                                typeof e.target?.result === "string"
-                            ) {
-                                const rawData = JSON.parse(e.target.result)
-                                setIsValidConstraints(
-                                    rawData.time_var != undefined &&
-                                        rawData.resources != undefined
-                                )
-                            }
-                        }
-                        setConsParams(combinedFiles[combinedFilesKey])
-                    } else {
-                        const jsonFileReader = new FileReader()
-                        jsonFileReader.readAsText(
-                            combinedFiles[combinedFilesKey],
-                            "UTF-8"
-                        )
-                        jsonFileReader.onload = (e) => {
-                            if (
-                                e.target?.result &&
-                                typeof e.target?.result === "string"
-                            ) {
-                                const rawData = JSON.parse(e.target.result)
-                                setIsValidConstraints(
-                                    rawData.resource_profiles != undefined &&
-                                        rawData.resource_calendars != undefined
-                                )
-                            }
-                        }
-                        setSimParams(combinedFiles[combinedFilesKey])
+        const asyncFn = async () => {
+            if (combinedFiles === undefined) {
+                setSimParams(null)
+                setBpmnModel(null)
+                setConsParams(null)
+                setIsValidConstraints(false)
+                setIsValidSimParams(false)
+                return
+            }
+            if (Array.isArray(combinedFiles)) {
+                for (const combinedFile of combinedFiles) {
+                    if (combinedFile.name.endsWith(".bpmn")) {
+                        setBpmnModel(combinedFile)
                     }
+                    if (combinedFile.name.endsWith(".json")) {
+                        if (combinedFile.name.includes("constraints")) {
+                            const jsonFileReader = new FileReader()
+                            jsonFileReader.readAsText(combinedFile, "UTF-8")
+                            jsonFileReader.onload = (e) => {
+                                if (
+                                    e.target?.result &&
+                                    typeof e.target?.result === "string"
+                                ) {
+                                    const rawData = JSON.parse(e.target.result)
+                                    setIsValidConstraints(
+                                        rawData.time_var && rawData.resources
+                                    )
+                                }
+                            }
+                            setConsParams(combinedFile)
+                        } else {
+                            const jsonFileReader = new FileReader()
+                            jsonFileReader.readAsText(combinedFile, "UTF-8")
+                            jsonFileReader.onload = (e) => {
+                                if (
+                                    e.target?.result &&
+                                    typeof e.target?.result === "string"
+                                ) {
+                                    const rawData = JSON.parse(e.target.result)
+                                    setIsValidConstraints(
+                                        rawData.resource_profiles &&
+                                            rawData.resource_calendars
+                                    )
+                                }
+                            }
+                            setSimParams(combinedFile)
+                        }
+                    }
+                }
+            } else {
+                const zip = new JSZip()
+                try {
+                    const content = await zip.loadAsync(combinedFiles)
+
+                    for (const contentFile of Object.values(content.files)) {
+                        if (contentFile.name.endsWith(".bpmn")) {
+                            const fileData = await contentFile.async("blob")
+
+                            const f = new File([fileData], "model.bpmn")
+                            setBpmnModel(f)
+                        }
+                        if (contentFile.name.endsWith(".json")) {
+                            const fileData = await contentFile.async("blob")
+                            if (contentFile.name.includes("constraints")) {
+                                const f = new File([fileData], contentFile.name)
+                                const jsonFileReader = new FileReader()
+                                jsonFileReader.readAsText(f, "UTF-8")
+                                jsonFileReader.onload = (e) => {
+                                    if (
+                                        e.target?.result &&
+                                        typeof e.target?.result === "string"
+                                    ) {
+                                        const rawData = JSON.parse(
+                                            e.target.result
+                                        )
+                                        setIsValidConstraints(
+                                            rawData.time_var &&
+                                                rawData.resources
+                                        )
+                                    }
+                                }
+                                setConsParams(f)
+                            } else {
+                                const f = new File([fileData], contentFile.name)
+                                const jsonFileReader = new FileReader()
+                                jsonFileReader.readAsText(f, "UTF-8")
+                                jsonFileReader.onload = (e) => {
+                                    if (
+                                        e.target?.result &&
+                                        typeof e.target?.result === "string"
+                                    ) {
+                                        const rawData = JSON.parse(
+                                            e.target.result
+                                        )
+                                        setIsValidConstraints(
+                                            rawData.resource_profiles &&
+                                                rawData.resource_calendars
+                                        )
+                                    }
+                                }
+                                setSimParams(f)
+                            }
+                        }
+                    }
+                } catch (error) {
+                    setErrorMessage(String(error))
                 }
             }
-        } else {
-            const zip = new JSZip()
-            zip.loadAsync(combinedFiles)
-                .then((content) => {
-                    for (const contentKey in content.files) {
-                        if (content.files[contentKey].name.endsWith(".bpmn")) {
-                            content.files[contentKey]
-                                .async("blob")
-                                .then((fileData) => {
-                                    const f = new File([fileData], "model.bpmn")
-                                    setBpmnModel(f)
-                                })
-                        }
-                        if (content.files[contentKey].name.endsWith(".json")) {
-                            content.files[contentKey]
-                                .async("blob")
-                                .then((fileData) => {
-                                    if (
-                                        content.files[contentKey].name.includes(
-                                            "constraints"
-                                        )
-                                    ) {
-                                        const f = new File(
-                                            [fileData],
-                                            content.files[contentKey].name
-                                        )
-                                        const jsonFileReader = new FileReader()
-                                        jsonFileReader.readAsText(f, "UTF-8")
-                                        jsonFileReader.onload = (e) => {
-                                            if (
-                                                e.target?.result &&
-                                                typeof e.target?.result ===
-                                                    "string"
-                                            ) {
-                                                const rawData = JSON.parse(
-                                                    e.target.result
-                                                )
-                                                setIsValidConstraints(
-                                                    rawData.time_var !=
-                                                        undefined &&
-                                                        rawData.resources !=
-                                                            undefined
-                                                )
-                                            }
-                                        }
-                                        setConsParams(f)
-                                    } else {
-                                        const f = new File(
-                                            [fileData],
-                                            content.files[contentKey].name
-                                        )
-                                        const jsonFileReader = new FileReader()
-                                        jsonFileReader.readAsText(f, "UTF-8")
-                                        jsonFileReader.onload = (e) => {
-                                            if (
-                                                e.target?.result &&
-                                                typeof e.target?.result ===
-                                                    "string"
-                                            ) {
-                                                const rawData = JSON.parse(
-                                                    e.target.result
-                                                )
-                                                setIsValidConstraints(
-                                                    rawData.resource_profiles !=
-                                                        undefined &&
-                                                        rawData.resource_calendars !=
-                                                            undefined
-                                                )
-                                            }
-                                        }
-                                        setSimParams(f)
-                                    }
-                                })
-                        }
-                    }
-                })
-                .catch((error) => {
-                    setErrorMessage(error)
-                })
         }
+        void asyncFn()
     }, [combinedFiles])
 
     const areFilesPresent = () => {
         if (!wantGenerateConstraints) {
-            return simParams != null && consParams != null && bpmnModel != null
+            return (
+                simParams !== null && consParams !== null && bpmnModel !== null
+            )
         } else {
-            return simParams != null && bpmnModel != null
+            return simParams !== null && bpmnModel !== null
         }
     }
 
@@ -280,7 +247,7 @@ const Upload = () => {
         if (wantGenerateConstraints) {
             setInfoMessage("Generating constraints...")
 
-            if (simParams != null) {
+            if (simParams !== null) {
                 generateConstraints(simParams)
                     .then((result) => {
                         const dataJson = result.data

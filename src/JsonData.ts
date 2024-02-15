@@ -102,7 +102,7 @@ export interface ResourceInfo {
 
 export interface ProbabilityDistribution {
     distribution_name: string
-    distribution_params: { value: number }[]
+    distribution_params: Array<{ value: number }>
 }
 
 export interface ProbabilityDistributionForResource

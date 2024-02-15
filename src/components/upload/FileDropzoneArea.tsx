@@ -1,7 +1,4 @@
-import React, { Component, useEffect, useState } from "react"
 import { DropzoneArea } from "mui-file-dropzone"
-import { makeStyles } from "@mui/material"
-import JSZip from "jszip"
 
 interface DropzoneAreaProps {
     acceptedFiles: string[]

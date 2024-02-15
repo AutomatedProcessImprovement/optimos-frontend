@@ -1,5 +1,5 @@
-import { Controller, useFieldArray, UseFormReturn } from "react-hook-form"
-import { ConsJsonData, ScenarioProperties } from "../../JsonData"
+import { Controller, type UseFormReturn } from "react-hook-form"
+import { type ConsJsonData, type ScenarioProperties } from "../../JsonData"
 import {
     Card,
     Grid,
@@ -13,7 +13,6 @@ import {
     REQUIRED_ERROR_MSG,
     SHOULD_BE_GREATER_0_MSG,
 } from "../validationMessages"
-import * as React from "react"
 
 interface GlobalConstraintsProps {
     scenarioFormState: UseFormReturn<ScenarioProperties, object>
@@ -27,11 +26,6 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
             control: scenarioFormControl,
             formState: { errors: scenarioErrors },
         },
-        jsonFormState: {
-            control: consFormControl,
-            formState: { errors: consErrors },
-        },
-        setErrorMessage,
     } = props
 
     return (
@@ -64,7 +58,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                                     }
                                     helperText={
                                         scenarioErrors?.scenario_name
-                                            ?.message || ""
+                                            ?.message ?? ""
                                     }
                                     variant="standard"
                                     style={{ width: "75%" }}
@@ -147,7 +141,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                                     }
                                     helperText={
                                         scenarioErrors?.num_iterations
-                                            ?.message || ""
+                                            ?.message ?? ""
                                     }
                                     variant="standard"
                                     style={{ width: "75%" }}

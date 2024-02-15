@@ -3,22 +3,17 @@ import {
     Button,
     ButtonGroup,
     Grid,
-    makeStyles,
     Step,
     StepButton,
     StepIcon,
-    StepLabel,
     Stepper,
     Tooltip,
     useTheme,
 } from "@mui/material"
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect } from "react"
 import { useLocation } from "react-router-dom"
-import CallSplitIcon from "@mui/icons-material/CallSplit"
 import GroupsIcon from "@mui/icons-material/Groups"
-import DateRangeIcon from "@mui/icons-material/DateRange"
 import BarChartIcon from "@mui/icons-material/BarChart"
-import AssignmentIndIcon from "@mui/icons-material/AssignmentInd"
 import SettingsIcon from "@mui/icons-material/Settings"
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
@@ -26,7 +21,7 @@ import useFormState from "./useFormState"
 import useJsonFile from "./useJsonFile"
 import { saveAs } from "file-saver"
 import CancelIcon from "@mui/icons-material/Cancel"
-import { AlertColor } from "@mui/material/Alert"
+import { type AlertColor } from "@mui/material/Alert"
 import BuildIcon from "@mui/icons-material/Build"
 import useTabVisibility, { TABS } from "./useTabVisibility"
 import SnackBar from "../SnackBar"
@@ -34,7 +29,7 @@ import GlobalConstraints from "../globalConstraints/GlobalConstraints"
 import paths from "../../router/paths"
 import { useNavigate } from "react-router"
 import { useForm } from "react-hook-form"
-import { ConsJsonData, ScenarioProperties } from "../../JsonData"
+import { type ScenarioProperties } from "../../JsonData"
 import RCons from "../resourceConstraints/ResourceConstraints"
 import ScenarioConstraints from "../globalConstraints/ScenarioConstraints"
 import { getTaskByTaskId, optimize } from "../../api/api"
@@ -43,6 +38,7 @@ import OptimizationResults from "../dashboard/OptimizationResults"
 import JSZip from "jszip"
 import useSimParamsJsonFile from "./useSimParamsJsonFile"
 import { timePeriodToBinary } from "../helpers"
+import { type JsonReport } from "../../types"
 
 interface LocationState {
     bpmnFile: File
@@ -50,7 +46,7 @@ interface LocationState {
     consParamsFile: File
 }
 
-const tooltip_desc: { [key: string]: string } = {
+const tooltip_desc: Record<string, string> = {
     GLOBAL_CONSTRAINTS:
         "Define the algorithm, approach and number of iterations",
     SCENARIO_CONSTRAINTS:
@@ -70,8 +66,6 @@ const ParameterEditor = () => {
     const activeColor = theme.palette.info.dark
     const successColor = theme.palette.success.light
     const errorColor = theme.palette.error.light
-
-    const linkDownloadRef = useRef<HTMLAnchorElement>(null)
 
     const [isPollingEnabled, setIsPollingEnabled] = useState(false)
     const [pendingTaskId, setPendingTaskId] = useState("")
@@ -96,9 +90,8 @@ const ParameterEditor = () => {
 
     const [optimizationReportFileName, setOptimizationReportFileName] =
         useState("")
-    const [optimizationReportInfo, setOptimizationReportInfo] = useState<
-        string | null
-    >(null)
+    const [optimizationReportInfo, setOptimizationReportInfo] =
+        useState<JsonReport | null>(null)
 
     const scenarioState = useForm<ScenarioProperties>({
         mode: "onBlur",
@@ -124,7 +117,6 @@ const ParameterEditor = () => {
             console.log(errors)
             setErrorMessage("There are validation errors")
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSubmitted, submitCount])
 
     useInterval(
@@ -141,9 +133,6 @@ const ParameterEditor = () => {
 
                     console.log(error)
                     console.log(error.response)
-                    const errorMessage =
-                        error?.response?.data?.displayMessage ||
-                        "Something went wrong"
                 })
         },
         isPollingEnabled ? 60000 : null
@@ -158,11 +147,9 @@ const ParameterEditor = () => {
                         setIsPollingEnabled(false)
 
                         setOptimizationReportFileName(
-                            dataJson.TaskResponse["stat_path"]
+                            dataJson.TaskResponse.stat_path
                         )
-                        setOptimizationReportInfo(
-                            dataJson.TaskResponse["report"]
-                        )
+                        setOptimizationReportInfo(dataJson.TaskResponse.report)
 
                         // redirect to results step
                         setActiveStep(TABS.SIMULATION_RESULTS)
@@ -234,7 +221,7 @@ const ParameterEditor = () => {
                     />
                 )
             case TABS.SIMULATION_RESULTS:
-                if (!!optimizationReportInfo) {
+                if (optimizationReportInfo) {
                     console.log(optimizationReportInfo)
                     return (
                         <OptimizationResults
@@ -260,11 +247,11 @@ const ParameterEditor = () => {
                 break
             case TABS.SCENARIO_CONSTRAINTS:
                 currError =
-                    errors.time_var ||
-                    errors.hours_in_day ||
-                    errors.max_cap ||
-                    errors.max_shift_size ||
-                    errors.hours_in_day ||
+                    errors.time_var ??
+                    errors.hours_in_day ??
+                    errors.max_cap ??
+                    errors.max_shift_size ??
+                    errors.hours_in_day ??
                     errors.max_shift_blocks
                 Icon = <SettingsIcon style={styles} />
                 break
@@ -291,7 +278,7 @@ const ParameterEditor = () => {
                 color = successColor
             }
 
-            return <BadgeIcon style={{ marginRight: "-9px", color: color }} />
+            return <BadgeIcon style={{ marginRight: "-9px", color }} />
         }
 
         const areAnyErrors =
@@ -324,7 +311,9 @@ const ParameterEditor = () => {
             .then(function (content) {
                 saveAs(content, "files.zip")
             })
-            .catch((e) => console.log(e))
+            .catch((e) => {
+                console.log(e)
+            })
     }
 
     const fromContentToBlob = (values: any) => {
@@ -334,23 +323,23 @@ const ParameterEditor = () => {
     }
 
     const noInvalidOverlap = (): boolean => {
-        const values = getValues() as ConsJsonData
+        const values = getValues()
 
         console.log(simParamsData)
         console.log(values)
 
         if (simParamsData && values) {
-            const sp_tcs = simParamsData["resource_calendars"]
-            const cp_ttb = values["resources"]
+            const sp_tcs = simParamsData.resource_calendars
+            const cp_ttb = values.resources
 
-            for (const tKey in sp_tcs) {
-                const key_id = sp_tcs[tKey]["id"]
-                const ttb = sp_tcs[tKey]["time_periods"]
+            for (const sp_tc of sp_tcs) {
+                const key_id = sp_tc.id
+                const timePeriods = sp_tc.time_periods
 
                 let cons_equal
-                for (const cpKey in cp_ttb) {
-                    if (cp_ttb[cpKey].id === key_id) {
-                        cons_equal = cp_ttb[cpKey]
+                for (const constraint of cp_ttb) {
+                    if (constraint.id === key_id) {
+                        cons_equal = constraint
                     }
                 }
 
@@ -362,61 +351,61 @@ const ParameterEditor = () => {
                 let saturday = 0
                 let sunday = 0
 
-                for (const ttbKey in ttb) {
-                    const fromKey = ttb[ttbKey]["from"]
+                for (const timePeriod of timePeriods) {
+                    const fromKey = timePeriod.from
                     switch (fromKey) {
                         case "MONDAY":
                             monday += timePeriodToBinary(
-                                ttb[ttbKey]["beginTime"],
-                                ttb[ttbKey]["endTime"],
+                                timePeriod.beginTime,
+                                timePeriod.endTime,
                                 values.time_var,
                                 24
                             )
                             break
                         case "TUESDAY":
                             tuesday += timePeriodToBinary(
-                                ttb[ttbKey]["beginTime"],
-                                ttb[ttbKey]["endTime"],
+                                timePeriod.beginTime,
+                                timePeriod.endTime,
                                 values.time_var,
                                 24
                             )
                             break
                         case "WEDNESDAY":
                             wednesday += timePeriodToBinary(
-                                ttb[ttbKey]["beginTime"],
-                                ttb[ttbKey]["endTime"],
+                                timePeriod.beginTime,
+                                timePeriod.endTime,
                                 values.time_var,
                                 24
                             )
                             break
                         case "THURSDAY":
                             thursday += timePeriodToBinary(
-                                ttb[ttbKey]["beginTime"],
-                                ttb[ttbKey]["endTime"],
+                                timePeriod.beginTime,
+                                timePeriod.endTime,
                                 values.time_var,
                                 24
                             )
                             break
                         case "FRIDAY":
                             friday += timePeriodToBinary(
-                                ttb[ttbKey]["beginTime"],
-                                ttb[ttbKey]["endTime"],
+                                timePeriod.beginTime,
+                                timePeriod.endTime,
                                 values.time_var,
                                 24
                             )
                             break
                         case "SATURDAY":
                             saturday += timePeriodToBinary(
-                                ttb[ttbKey]["beginTime"],
-                                ttb[ttbKey]["endTime"],
+                                timePeriod.beginTime,
+                                timePeriod.endTime,
                                 values.time_var,
                                 24
                             )
                             break
                         case "SUNDAY":
                             sunday += timePeriodToBinary(
-                                ttb[ttbKey]["beginTime"],
-                                ttb[ttbKey]["endTime"],
+                                timePeriod.beginTime,
+                                timePeriod.endTime,
                                 values.time_var,
                                 24
                             )
@@ -426,13 +415,21 @@ const ParameterEditor = () => {
                     }
                 }
                 // Resource maps have been built, now crosscheck for overlaps with masks
-                let all_ok = [false, false, false, false, false, false, false]
-                let all_ok2 = [false, false, false, false, false, false, false]
+                const all_ok = [false, false, false, false, false, false, false]
+                const all_ok2 = [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                ]
                 if (cons_equal) {
                     // checks for masks
                     if (
                         (cons_equal.constraints.never_work_masks.monday |
-                            cons_equal.constraints.always_work_masks.monday) ==
+                            cons_equal.constraints.always_work_masks.monday) ===
                         (cons_equal.constraints.never_work_masks.monday ^
                             cons_equal.constraints.always_work_masks.monday)
                     ) {
@@ -440,7 +437,8 @@ const ParameterEditor = () => {
                     }
                     if (
                         (cons_equal.constraints.never_work_masks.tuesday |
-                            cons_equal.constraints.always_work_masks.tuesday) ==
+                            cons_equal.constraints.always_work_masks
+                                .tuesday) ===
                         (cons_equal.constraints.never_work_masks.tuesday ^
                             cons_equal.constraints.always_work_masks.tuesday)
                     ) {
@@ -449,7 +447,7 @@ const ParameterEditor = () => {
                     if (
                         (cons_equal.constraints.never_work_masks.wednesday |
                             cons_equal.constraints.always_work_masks
-                                .wednesday) ==
+                                .wednesday) ===
                         (cons_equal.constraints.never_work_masks.wednesday ^
                             cons_equal.constraints.always_work_masks.wednesday)
                     ) {
@@ -458,7 +456,7 @@ const ParameterEditor = () => {
                     if (
                         (cons_equal.constraints.never_work_masks.thursday |
                             cons_equal.constraints.always_work_masks
-                                .thursday) ==
+                                .thursday) ===
                         (cons_equal.constraints.never_work_masks.thursday ^
                             cons_equal.constraints.always_work_masks.thursday)
                     ) {
@@ -466,7 +464,7 @@ const ParameterEditor = () => {
                     }
                     if (
                         (cons_equal.constraints.never_work_masks.friday |
-                            cons_equal.constraints.always_work_masks.friday) ==
+                            cons_equal.constraints.always_work_masks.friday) ===
                         (cons_equal.constraints.never_work_masks.friday ^
                             cons_equal.constraints.always_work_masks.friday)
                     ) {
@@ -475,7 +473,7 @@ const ParameterEditor = () => {
                     if (
                         (cons_equal.constraints.never_work_masks.saturday |
                             cons_equal.constraints.always_work_masks
-                                .saturday) ==
+                                .saturday) ===
                         (cons_equal.constraints.never_work_masks.saturday ^
                             cons_equal.constraints.always_work_masks.saturday)
                     ) {
@@ -483,7 +481,7 @@ const ParameterEditor = () => {
                     }
                     if (
                         (cons_equal.constraints.never_work_masks.sunday |
-                            cons_equal.constraints.always_work_masks.sunday) ==
+                            cons_equal.constraints.always_work_masks.sunday) ===
                         (cons_equal.constraints.never_work_masks.sunday ^
                             cons_equal.constraints.always_work_masks.sunday)
                     ) {
@@ -493,76 +491,76 @@ const ParameterEditor = () => {
                     // Checks for timetables over masks
                     if (
                         (cons_equal.constraints.never_work_masks.monday &
-                            monday) ==
+                            monday) ===
                             0 &&
                         (cons_equal.constraints.always_work_masks.monday &
-                            monday) ==
+                            monday) ===
                             cons_equal.constraints.always_work_masks.monday
                     ) {
                         all_ok[0] = true
                     }
                     if (
                         (cons_equal.constraints.never_work_masks.tuesday &
-                            tuesday) ==
+                            tuesday) ===
                             0 &&
                         (cons_equal.constraints.always_work_masks.tuesday &
-                            tuesday) ==
+                            tuesday) ===
                             cons_equal.constraints.always_work_masks.tuesday
                     ) {
                         all_ok[1] = true
                     }
                     if (
                         (cons_equal.constraints.never_work_masks.wednesday &
-                            wednesday) ==
+                            wednesday) ===
                             0 &&
                         (cons_equal.constraints.always_work_masks.wednesday &
-                            wednesday) ==
+                            wednesday) ===
                             cons_equal.constraints.always_work_masks.wednesday
                     ) {
                         all_ok[2] = true
                     }
                     if (
                         (cons_equal.constraints.never_work_masks.thursday &
-                            thursday) ==
+                            thursday) ===
                             0 &&
                         (cons_equal.constraints.always_work_masks.thursday &
-                            thursday) ==
+                            thursday) ===
                             cons_equal.constraints.always_work_masks.thursday
                     ) {
                         all_ok[3] = true
                     }
                     if (
                         (cons_equal.constraints.never_work_masks.friday &
-                            friday) ==
+                            friday) ===
                             0 &&
                         (cons_equal.constraints.always_work_masks.friday &
-                            friday) ==
+                            friday) ===
                             cons_equal.constraints.always_work_masks.friday
                     ) {
                         all_ok[4] = true
                     }
                     if (
                         (cons_equal.constraints.never_work_masks.saturday &
-                            saturday) ==
+                            saturday) ===
                             0 &&
                         (cons_equal.constraints.always_work_masks.saturday &
-                            saturday) ==
+                            saturday) ===
                             cons_equal.constraints.always_work_masks.saturday
                     ) {
                         all_ok[5] = true
                     }
                     if (
                         (cons_equal.constraints.never_work_masks.sunday &
-                            sunday) ==
+                            sunday) ===
                             0 &&
                         (cons_equal.constraints.always_work_masks.sunday &
-                            sunday) ==
+                            sunday) ===
                             cons_equal.constraints.always_work_masks.sunday
                     ) {
                         all_ok[6] = true
                     }
                 }
-                if (!all_ok2.every((v) => v === true)) {
+                if (!all_ok2.every((v) => v)) {
                     setErrorMessage(
                         "An invalid mask overlap has been found. Check the masks of " +
                             key_id +
@@ -571,7 +569,7 @@ const ParameterEditor = () => {
                     return false
                 }
 
-                if (!all_ok.every((v) => v === true)) {
+                if (!all_ok.every((v) => v)) {
                     setErrorMessage(
                         "An invalid timetable overlap has been found. Make sure the masks and timetable do no overlap in " +
                             key_id
@@ -585,7 +583,7 @@ const ParameterEditor = () => {
     }
 
     const getBlobBasedOnExistingInput = (): Blob => {
-        const values = getValues() as ConsJsonData
+        const values = getValues()
         const blob = fromContentToBlob(values)
 
         return blob
@@ -604,12 +602,8 @@ const ParameterEditor = () => {
 
         const canContinue = noInvalidOverlap()
         const newBlob = getBlobBasedOnExistingInput()
-        const {
-            num_iterations: num_iterations,
-            approach: approach,
-            algorithm: algorithm,
-            scenario_name: scenario_name,
-        } = getScenarioValues()
+        const { num_iterations, approach, algorithm, scenario_name } =
+            getScenarioValues()
 
         // return
 
@@ -708,9 +702,9 @@ const ParameterEditor = () => {
                                             <Tooltip title={tooltip_desc[key]}>
                                                 <StepButton
                                                     color="inherit"
-                                                    onClick={() =>
+                                                    onClick={() => {
                                                         setActiveStep(valueTab)
-                                                    }
+                                                    }}
                                                     icon={getStepIcon(valueTab)}
                                                 >
                                                     {label}

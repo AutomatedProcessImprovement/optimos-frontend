@@ -1,20 +1,15 @@
-import { ConsJsonData } from "../../JsonData"
-import { useEffect, useMemo, useState } from "react"
+import { type ConsJsonData } from "../../JsonData"
+import { useEffect, useMemo } from "react"
 import * as yup from "yup"
 import {
     MIN_LENGTH_REQUIRED_MSG,
     REQUIRED_ERROR_MSG,
     SHOULD_BE_NUMBER_MSG,
-    RESOURCE_ALLOCATION_DUPLICATES_MSG,
-    SHOULD_BE_GREATER_0_MSG,
-    SHOULD_BE_BOOLEAN_MSG,
 } from "./../validationMessages"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 
 const useFormState = (consJsonData?: ConsJsonData) => {
-    const [data, setData] = useState()
-
     const constraintsValidationSchema = useMemo(
         () =>
             yup.object({
@@ -117,10 +112,6 @@ const useFormState = (consJsonData?: ConsJsonData) => {
     })
 
     const { reset } = formState
-
-    useEffect(() => {
-        reset(data)
-    }, [data, reset])
 
     useEffect(() => {
         if (consJsonData !== undefined) {

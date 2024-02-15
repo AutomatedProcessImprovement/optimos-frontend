@@ -8,7 +8,7 @@ export enum TABS {
     SIMULATION_RESULTS,
 }
 
-const tabsName: { [key: string]: string } = {
+const tabsName: Record<string, string> = {
     GLOBAL_CONSTRAINTS: "Global Constraints",
     SCENARIO_CONSTRAINTS: "Scenario Constraints",
     RESOURCE_CONSTRAINTS: "Resource Constraints",
@@ -31,7 +31,7 @@ const useTabVisibility = () => {
         }
 
         const newVisibleTabs = Object.entries(tabsName).reduce(
-            (acc: Dictionary<string>, [key, value]: any) => {
+            (acc: Dictionary<string>, [key, value]) => {
                 acc.add(key, value)
                 return acc
             },

@@ -1,8 +1,7 @@
-import { ConsJsonData } from "../JsonData"
 import moment from "moment"
 
 export class Dictionary<T> {
-    items: { [key: string]: T } = {}
+    items: Record<string, T> = {}
 
     add(key: string, value: T) {
         this.items[key] = value
@@ -45,7 +44,7 @@ export const timePeriodToBinary = (
 
     let res = ""
 
-    let current = start_of_day
+    const current = start_of_day
     for (let i = 0; i < num_slots; i++) {
         if (current.isBetween(tp_start, tp_end, "minute", "()")) {
             res += "1"

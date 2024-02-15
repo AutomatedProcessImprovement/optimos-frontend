@@ -1,5 +1,6 @@
-import { Controller, useFieldArray, UseFormReturn } from "react-hook-form"
-import { ConsJsonData, ScenarioProperties } from "../../JsonData"
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+import { Controller, type UseFormReturn } from "react-hook-form"
+import { type ConsJsonData, type ScenarioProperties } from "../../JsonData"
 import {
     Card,
     Grid,
@@ -13,7 +14,6 @@ import {
     REQUIRED_ERROR_MSG,
     SHOULD_BE_GREATER_0_MSG,
 } from "../validationMessages"
-import * as React from "react"
 import { useState } from "react"
 
 interface ScenarioConstraintsProps {
@@ -62,7 +62,7 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                                         min: "1",
                                     }}
                                     error={errors?.max_cap !== undefined}
-                                    helperText={errors?.max_cap?.message || ""}
+                                    helperText={errors?.max_cap?.message ?? ""}
                                     variant="standard"
                                     style={{ width: "50%" }}
                                 />
@@ -95,7 +95,7 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                                     }}
                                     error={errors?.max_shift_size !== undefined}
                                     helperText={
-                                        errors?.max_shift_size?.message || ""
+                                        errors?.max_shift_size?.message ?? ""
                                     }
                                     variant="standard"
                                     style={{ width: "50%" }}
@@ -131,7 +131,7 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                                         errors?.max_shift_blocks !== undefined
                                     }
                                     helperText={
-                                        errors?.max_shift_blocks?.message || ""
+                                        errors?.max_shift_blocks?.message ?? ""
                                     }
                                     variant="standard"
                                     style={{ width: "50%" }}
@@ -164,7 +164,7 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
                                     }}
                                     error={errors?.hours_in_day !== undefined}
                                     helperText={
-                                        errors?.hours_in_day?.message || ""
+                                        errors?.hours_in_day?.message ?? ""
                                     }
                                     variant="standard"
                                     style={{ width: "50%" }}

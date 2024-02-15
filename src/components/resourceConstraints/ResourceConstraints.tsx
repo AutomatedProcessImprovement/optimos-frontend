@@ -2,21 +2,18 @@ import {
     Card,
     FormControlLabel,
     Grid,
-    InputLabel,
     MenuItem,
     Switch,
     TextField,
     Typography,
 } from "@mui/material"
 import { useState, useEffect } from "react"
-import { Controller, useFieldArray, UseFormReturn } from "react-hook-form"
-import { ConsJsonData } from "../../JsonData"
+import { Controller, useFieldArray, type UseFormReturn } from "react-hook-form"
+import { type ConsJsonData } from "../../JsonData"
 import {
-    MIN_LENGTH_REQUIRED_MSG,
     REQUIRED_ERROR_MSG,
     SHOULD_BE_GREATER_0_MSG,
 } from "../validationMessages"
-import * as React from "react"
 
 interface ResourceCalendarsProps {
     formState: UseFormReturn<ConsJsonData, object>
@@ -25,18 +22,14 @@ interface ResourceCalendarsProps {
 
 const ResourceConstraints = (props: ResourceCalendarsProps) => {
     const {
-        formState: { control: formControl, getValues },
+        formState: { control: formControl },
         formState,
         setErrorMessage,
     } = props
     const [currCalendarIndex, setCurrCalendarIndex] = useState<number>()
     const [currCalendarKey, setCurrCalendarKey] = useState<string>("")
 
-    const {
-        fields: allCalendars,
-        prepend,
-        remove,
-    } = useFieldArray({
+    const { fields: allCalendars } = useFieldArray({
         keyName: "key",
         control: formControl,
         name: "resources",
@@ -45,7 +38,7 @@ const ResourceConstraints = (props: ResourceCalendarsProps) => {
     useEffect(() => {
         // once we get the new number of calendars, we:
         // either created a new one and redirect users to this newly created resource
-        // or loading the page for the first time and select the first calendar in the list as an active one
+        // or loading the page for the first time and select the first calendar of the list as an active one
         setCurrCalendarIndex(0)
     }, [allCalendars])
 
@@ -132,7 +125,7 @@ interface RConsGlobalProps extends ResourceCalendarsProps {
 }
 
 const ResourceConstraintsList = (props: RConsGlobalProps) => {
-    const { formState, calendarIndex, calendarKey } = props
+    const { formState, calendarIndex } = props
     const { control } = formState
     const [index, setIndex] = useState<number>(calendarIndex)
 

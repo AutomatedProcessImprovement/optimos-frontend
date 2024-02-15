@@ -19,8 +19,8 @@ export const optimize = async (
     formData.append("modelFile", modelFile as Blob)
 
     // Display the key/value pairs
-    for (var pair of formData.entries()) {
-        console.log(pair[0] + ", " + pair[1])
+    for (const pair of formData.entries()) {
+        console.log(pair[0] + ", " + pair[1].toString())
     }
 
     return await axios.post("/api/optimize", formData)
