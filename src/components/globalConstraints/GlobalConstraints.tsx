@@ -42,7 +42,7 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
                                     value={value}
                                     label="Scenario name"
                                     onChange={(e) => {
-                                        onChange(Number(e.target.value))
+                                        onChange(e.target.value)
                                     }}
                                     error={scenarioErrors?.scenario_name !== undefined}
                                     helperText={scenarioErrors?.scenario_name?.message || ""}
