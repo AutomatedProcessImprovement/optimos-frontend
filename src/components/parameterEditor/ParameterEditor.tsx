@@ -355,7 +355,7 @@ const ParameterEditor = () => {
                     const fromKey = timePeriod.from
                     switch (fromKey) {
                         case "MONDAY":
-                            monday += timePeriodToBinary(
+                            monday |= timePeriodToBinary(
                                 timePeriod.beginTime,
                                 timePeriod.endTime,
                                 values.time_var,
@@ -363,7 +363,7 @@ const ParameterEditor = () => {
                             )
                             break
                         case "TUESDAY":
-                            tuesday += timePeriodToBinary(
+                            tuesday |= timePeriodToBinary(
                                 timePeriod.beginTime,
                                 timePeriod.endTime,
                                 values.time_var,
@@ -371,7 +371,7 @@ const ParameterEditor = () => {
                             )
                             break
                         case "WEDNESDAY":
-                            wednesday += timePeriodToBinary(
+                            wednesday |= timePeriodToBinary(
                                 timePeriod.beginTime,
                                 timePeriod.endTime,
                                 values.time_var,
@@ -379,7 +379,7 @@ const ParameterEditor = () => {
                             )
                             break
                         case "THURSDAY":
-                            thursday += timePeriodToBinary(
+                            thursday |= timePeriodToBinary(
                                 timePeriod.beginTime,
                                 timePeriod.endTime,
                                 values.time_var,
@@ -387,7 +387,7 @@ const ParameterEditor = () => {
                             )
                             break
                         case "FRIDAY":
-                            friday += timePeriodToBinary(
+                            friday |= timePeriodToBinary(
                                 timePeriod.beginTime,
                                 timePeriod.endTime,
                                 values.time_var,
@@ -395,7 +395,7 @@ const ParameterEditor = () => {
                             )
                             break
                         case "SATURDAY":
-                            saturday += timePeriodToBinary(
+                            saturday |= timePeriodToBinary(
                                 timePeriod.beginTime,
                                 timePeriod.endTime,
                                 values.time_var,
@@ -403,7 +403,7 @@ const ParameterEditor = () => {
                             )
                             break
                         case "SUNDAY":
-                            sunday += timePeriodToBinary(
+                            sunday |= timePeriodToBinary(
                                 timePeriod.beginTime,
                                 timePeriod.endTime,
                                 values.time_var,

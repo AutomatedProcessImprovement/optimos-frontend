@@ -46,6 +46,7 @@ export const timePeriodToBinary = (
 
     const current = start_of_day
     for (let i = 0; i < num_slots; i++) {
+        // TODO: Ask why this condition is ()
         if (current.isBetween(tp_start, tp_end, "minute", "()")) {
             res += "1"
         } else {

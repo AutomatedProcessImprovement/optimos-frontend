@@ -16,7 +16,7 @@ import {
 } from "../validationMessages"
 import { ConstraintMaskInput } from "./ConstraintMaskInput"
 
-const daysOfWeek: (keyof NeverWorkMask)[] = [
+const daysOfWeek: Array<keyof NeverWorkMask> = [
     "monday",
     "tuesday",
     "wednesday",
@@ -354,7 +354,7 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="h6" align="left">
-                                Never work masks
+                                Never work times
                             </Typography>
                         </Grid>
                         {daysOfWeek.map((day) => (
@@ -374,7 +374,7 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="h6" align="left">
-                                Always work masks
+                                Always work times
                             </Typography>
                         </Grid>
                         {daysOfWeek.map((day) => (
