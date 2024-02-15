@@ -19,7 +19,7 @@ export interface ConstraintsObject {
     always_work_masks: AlwaysWorkMask
 }
 
-interface GlobalConstraints {
+export interface GlobalConstraints {
     max_weekly_cap: number
     max_daily_cap: number
     max_consecutive_cap: number
@@ -28,7 +28,7 @@ interface GlobalConstraints {
     is_human: boolean
 }
 
-interface DailyStartTimes {
+export interface DailyStartTimes {
     monday: string
     tuesday: string
     wednesday: string
@@ -38,7 +38,7 @@ interface DailyStartTimes {
     sunday: string
 }
 
-interface NeverWorkMask {
+export interface NeverWorkMask {
     monday: number
     tuesday: number
     wednesday: number
@@ -48,7 +48,7 @@ interface NeverWorkMask {
     sunday: number
 }
 
-interface AlwaysWorkMask {
+export interface AlwaysWorkMask {
     monday: number
     tuesday: number
     wednesday: number

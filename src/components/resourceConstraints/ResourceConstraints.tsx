@@ -9,11 +9,22 @@ import {
 } from "@mui/material"
 import { useState, useEffect } from "react"
 import { Controller, useFieldArray, type UseFormReturn } from "react-hook-form"
-import { type ConsJsonData } from "../../JsonData"
+import { type NeverWorkMask, type ConsJsonData } from "../../JsonData"
 import {
     REQUIRED_ERROR_MSG,
     SHOULD_BE_GREATER_0_MSG,
 } from "../validationMessages"
+import { ConstraintMaskInput } from "./ConstraintMaskInput"
+
+const daysOfWeek: (keyof NeverWorkMask)[] = [
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+]
 
 interface ResourceCalendarsProps {
     formState: UseFormReturn<ConsJsonData, object>
@@ -346,223 +357,15 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 Never work masks
                             </Typography>
                         </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.never_work_masks.monday`}
+                        {daysOfWeek.map((day) => (
+                            <ConstraintMaskInput
+                                key={`never_work_masks_${day}`}
                                 control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Monday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
+                                index={index}
+                                field={day}
+                                collection="never_work_masks"
                             />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.never_work_masks.tuesday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Tuesday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.never_work_masks.wednesday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Wednesday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.never_work_masks.thursday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Thursday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.never_work_masks.friday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Friday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.never_work_masks.saturday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Saturday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.never_work_masks.sunday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Sunday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
+                        ))}
                     </Grid>
                 </Card>
             </Grid>
@@ -574,223 +377,15 @@ const ResourceConstraintsList = (props: RConsGlobalProps) => {
                                 Always work masks
                             </Typography>
                         </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.always_work_masks.monday`}
+                        {daysOfWeek.map((day) => (
+                            <ConstraintMaskInput
+                                key={`always_work_masks_${day}`}
                                 control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Monday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
+                                index={index}
+                                field={day}
+                                collection="always_work_masks"
                             />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.always_work_masks.tuesday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Tuesday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.always_work_masks.wednesday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Wednesday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.always_work_masks.thursday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Thursday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.always_work_masks.friday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Friday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.always_work_masks.saturday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Saturday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Controller
-                                name={`resources.${index}.constraints.always_work_masks.sunday`}
-                                control={control}
-                                rules={{
-                                    required: REQUIRED_ERROR_MSG,
-                                    min: {
-                                        value: 1,
-                                        message: SHOULD_BE_GREATER_0_MSG,
-                                    },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                    <TextField
-                                        type="number"
-                                        value={value}
-                                        label="Sunday"
-                                        onChange={(e) => {
-                                            onChange(Number(e.target.value))
-                                        }}
-                                        inputProps={{
-                                            step: "1",
-                                            min: "0",
-                                        }}
-                                        // error={errors?.max_shift_blocks !== undefined}
-                                        // helperText={errors?.max_shift_blocks?.message || ""}
-                                        variant="standard"
-                                        style={{ width: "50%" }}
-                                    />
-                                )}
-                            />
-                        </Grid>
+                        ))}
                     </Grid>
                 </Card>
             </Grid>

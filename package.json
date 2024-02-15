@@ -11,6 +11,7 @@
         "lint:fix": "eslint src --ext .ts,.tsx --fix"
     },
     "dependencies": {
+        "@air/react-drag-to-select": "^5.0.8",
         "@emotion/react": "^11.10.6",
         "@emotion/styled": "^11.10.6",
         "@fontsource/roboto": "^4.5.8",
